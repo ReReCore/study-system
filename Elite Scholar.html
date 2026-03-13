@@ -1,0 +1,2578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>夜光学者 · Night Scholar Elite System</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #16161f;
+    --bg4: #1c1c28;
+    --border: #2a2a3a;
+    --border2: #353548;
+    --accent: #c9a84c;
+    --accent2: #e8c96a;
+    --accent3: #f5e19a;
+    --red: #e05c5c;
+    --green: #5ce08a;
+    --blue: #5ca8e0;
+    --purple: #a875e0;
+    --text: #e8e8f0;
+    --text2: #a8a8c0;
+    --text3: #6868888;
+    --glow: 0 0 20px rgba(201,168,76,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* SIDEBAR */
+  #sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo .zh { font-family: 'Noto Serif SC', serif; font-size: 18px; color: var(--accent); letter-spacing: 2px; }
+  .sidebar-logo .en { font-size: 10px; color: var(--text2); letter-spacing: 3px; text-transform: uppercase; margin-top: 2px; }
+
+  .sidebar-clock {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+  }
+  .clock-time { font-size: 22px; color: var(--accent2); letter-spacing: 2px; }
+  .clock-date { font-size: 10px; color: var(--text2); margin-top: 2px; }
+
+  .nav-section { padding: 8px 0; }
+  .nav-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--text2); padding: 8px 20px 4px; opacity: 0.6; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg3); }
+  .nav-item.active { color: var(--accent2); border-left-color: var(--accent); background: rgba(201,168,76,0.07); }
+  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .quote-box { font-size: 11px; color: var(--text2); line-height: 1.6; font-style: italic; }
+  .quote-zh { font-family: 'Noto Serif SC', serif; font-size: 12px; color: var(--accent); display: block; margin-bottom: 4px; }
+
+  /* MAIN */
+  #main {
+    margin-left: 240px;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,15,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+  }
+  .topbar-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--accent2); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    cursor: pointer;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+    border: none;
+  }
+  .btn-gold { background: var(--accent); color: #0a0a0f; }
+  .btn-gold:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+  .btn-outline:hover { color: var(--text); border-color: var(--accent); }
+  .btn-red { background: rgba(224,92,92,0.15); color: var(--red); border: 1px solid rgba(224,92,92,0.3); }
+  .btn-green { background: rgba(92,224,138,0.12); color: var(--green); border: 1px solid rgba(92,224,138,0.3); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+  /* PAGES */
+  .page { display: none; padding: 32px; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .card-title { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+
+  /* GRID */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+
+  /* STAT CARDS */
+  .stat-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num { font-family: 'DM Mono', monospace; font-size: 28px; color: var(--accent2); }
+  .stat-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
+
+  /* STREAK */
+  .streak-flame { font-size: 32px; }
+
+  /* PROGRESS BARS */
+  .prog-wrap { margin-bottom: 12px; }
+  .prog-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); margin-bottom: 5px; }
+  .prog-bar { height: 6px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+
+  /* TAGS */
+  .tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 500; letter-spacing: 0.5px; }
+  .tag-gold { background: rgba(201,168,76,0.15); color: var(--accent2); border: 1px solid rgba(201,168,76,0.25); }
+  .tag-red { background: rgba(224,92,92,0.12); color: var(--red); border: 1px solid rgba(224,92,92,0.25); }
+  .tag-green { background: rgba(92,224,138,0.1); color: var(--green); border: 1px solid rgba(92,224,138,0.2); }
+  .tag-blue { background: rgba(92,168,224,0.1); color: var(--blue); border: 1px solid rgba(92,168,224,0.2); }
+  .tag-purple { background: rgba(168,117,224,0.1); color: var(--purple); border: 1px solid rgba(168,117,224,0.2); }
+
+  /* INPUTS */
+  input, textarea, select {
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--bg3); }
+
+  label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 4px; letter-spacing: 0.5px; }
+
+  /* FORM ROW */
+  .form-row { display: grid; gap: 12px; margin-bottom: 12px; }
+  .form-row.cols2 { grid-template-columns: 1fr 1fr; }
+  .form-row.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 12px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* SECTION HEADER */
+  .section-header { margin-bottom: 20px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--text); }
+  .section-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* TODO */
+  .todo-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .todo-item:last-child { border-bottom: none; }
+  .todo-check {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--border2);
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    transition: all 0.15s;
+  }
+  .todo-check.done { background: var(--accent); border-color: var(--accent); }
+  .todo-check.done::after { content: '✓'; font-size: 10px; color: #0a0a0f; }
+  .todo-text { flex: 1; font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .todo-text.done { text-decoration: line-through; opacity: 0.5; }
+
+  /* HABIT TRACKER */
+  .habit-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .habit-name { flex: 1; font-size: 13px; color: var(--text2); }
+  .habit-days { display: flex; gap: 4px; }
+  .habit-day {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--text2);
+    transition: all 0.15s;
+  }
+  .habit-day.done { background: var(--accent); border-color: var(--accent); color: #0a0a0f; font-weight: 700; }
+
+  /* TIMER */
+  .timer-display {
+    font-family: 'DM Mono', monospace;
+    font-size: 64px;
+    color: var(--accent2);
+    text-align: center;
+    letter-spacing: 4px;
+    text-shadow: var(--glow);
+    margin: 20px 0;
+  }
+  .timer-label { text-align: center; font-size: 11px; color: var(--text2); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+
+  /* SUBJECT COLORS */
+  .subj-math { --sc: #5ca8e0; }
+  .subj-science { --sc: #5ce08a; }
+  .subj-english { --sc: #a875e0; }
+  .subj-chinese { --sc: #e05c5c; }
+  .subj-history { --sc: #c9a84c; }
+  .subj-extra { --sc: #e08a5c; }
+  .subj-other { --sc: #8888aa; }
+  .subj-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sc); flex-shrink: 0; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    padding: 28px;
+    width: 520px;
+    max-width: 95vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    transform: translateY(12px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--accent2); margin-bottom: 20px; }
+
+  /* WEEK GRID */
+  .week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
+  .week-cell {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 80px;
+  }
+  .week-cell:hover { border-color: var(--accent); }
+  .week-cell.today { border-color: var(--accent); background: rgba(201,168,76,0.06); }
+  .week-day { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); margin-bottom: 6px; }
+  .week-date { font-family: 'DM Mono', monospace; font-size: 18px; color: var(--text); }
+  .week-tasks { margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
+  .week-task-dot { font-size: 9px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* AI CHAT */
+  .chat-messages {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .msg { display: flex; gap: 10px; animation: fadeIn 0.3s ease; }
+  .msg-ai .bubble { background: var(--bg4); border: 1px solid var(--border2); border-radius: 0 10px 10px 10px; }
+  .msg-user { flex-direction: row-reverse; }
+  .msg-user .bubble { background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.2); border-radius: 10px 0 10px 10px; }
+  .bubble { padding: 10px 14px; font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 85%; }
+  .msg-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+  .msg-ai .msg-avatar { background: rgba(201,168,76,0.15); }
+  .msg-user .msg-avatar { background: rgba(92,168,224,0.15); }
+
+  .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
+  .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text2); animation: typing 1.2s infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+  /* SPACED REP */
+  .sr-card {
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+  .sr-card:hover { border-color: var(--accent); }
+  .sr-question { font-size: 16px; color: var(--text); margin-bottom: 8px; }
+  .sr-answer { font-size: 14px; color: var(--accent2); display: none; }
+  .sr-card.flipped .sr-answer { display: block; }
+  .sr-card.flipped .sr-question { color: var(--text2); font-size: 12px; }
+
+  /* GRADE TRACKER */
+  .grade-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .grade-A { background: rgba(92,224,138,0.12); color: var(--green); border: 1px solid rgba(92,224,138,0.3); }
+  .grade-B { background: rgba(92,168,224,0.12); color: var(--blue); border: 1px solid rgba(92,168,224,0.3); }
+  .grade-C { background: rgba(201,168,76,0.12); color: var(--accent); border: 1px solid rgba(201,168,76,0.3); }
+  .grade-D { background: rgba(224,92,92,0.12); color: var(--red); border: 1px solid rgba(224,92,92,0.3); }
+
+  /* NOTIFICATIONS */
+  .notif-area { position: fixed; top: 70px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 300; }
+  .notif {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s ease, fadeOut 0.3s ease 3.5s forwards;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    max-width: 280px;
+  }
+  @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+  @keyframes fadeOut { from{opacity:1} to{opacity:0;pointer-events:none} }
+
+  /* REWARD/PUNISHMENT */
+  .rp-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg4);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .rp-icon { font-size: 20px; }
+  .rp-text { flex: 1; font-size: 13px; color: var(--text2); }
+  .rp-pts { font-family: 'DM Mono', monospace; font-size: 13px; }
+
+  /* POINTS */
+  .points-bar {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .points-num { font-family: 'DM Mono', monospace; font-size: 32px; color: var(--accent2); }
+  .points-label { font-size: 11px; color: var(--text2); letter-spacing: 1px; }
+
+  /* RESOURCES */
+  .resource-card {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.15s;
+    margin-bottom: 8px;
+  }
+  .resource-card:hover { border-color: var(--accent); transform: translateX(3px); }
+  .resource-name { font-size: 13px; color: var(--text); font-weight: 500; margin-bottom: 3px; }
+  .resource-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+  .resource-url { font-size: 10px; color: var(--accent); margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+  /* COLLAPSIBLE */
+  .collapse-trigger { cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .collapse-trigger:hover { color: var(--accent2); }
+  .collapse-arrow { font-size: 10px; transition: transform 0.2s; }
+  .collapse-trigger.open .collapse-arrow { transform: rotate(180deg); }
+  .collapse-body { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+  .collapse-body.open { max-height: 2000px; }
+
+  /* EDITABLE */
+  [contenteditable="true"] { outline: none; }
+  [contenteditable="true"]:focus {
+    background: rgba(201,168,76,0.05);
+    border-radius: 4px;
+    outline: 1px dashed rgba(201,168,76,0.3);
+    padding: 2px 4px;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* ROUTINE STEPS */
+  .routine-step {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: var(--bg4);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .routine-num { font-family: 'DM Mono', monospace; font-size: 20px; color: var(--accent); width: 30px; flex-shrink: 0; }
+  .routine-content { flex: 1; }
+  .routine-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .routine-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .routine-time { font-size: 11px; color: var(--accent); font-family: 'DM Mono', monospace; }
+
+  /* SUBJECT PILLS */
+  .subject-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: var(--bg4);
+    color: var(--text2);
+    margin: 3px;
+    transition: all 0.15s;
+  }
+  .subject-pill:hover { border-color: var(--accent); color: var(--accent2); }
+  .subject-pill.active { background: rgba(201,168,76,0.12); border-color: var(--accent); color: var(--accent2); }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 40px; color: var(--text2); font-size: 13px; }
+  .empty-icon { font-size: 32px; margin-bottom: 12px; }
+
+  /* NOTES */
+  .note-card {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 10px;
+  }
+  .note-card:hover { border-color: var(--accent); }
+  .note-title { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+  .note-preview { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .note-meta { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+
+  /* YEAR PLAN */
+  .month-card {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .month-name { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .month-goal { font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+  /* FOCUS MODE */
+  #focus-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 500;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #focus-overlay.show { display: flex; }
+  .focus-subject { font-family: 'Noto Serif SC', serif; font-size: 14px; letter-spacing: 4px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+  .focus-task { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--text); margin-bottom: 32px; text-align: center; max-width: 600px; }
+  .focus-exit { position: fixed; top: 20px; right: 20px; }
+
+  /* SCROLLABLE CONTENT */
+  .scroll-x { overflow-x: auto; }
+  
+  /* MOBILE TOGGLE */
+  #sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 150;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; }
+    #sidebar-toggle { display: flex; align-items: center; justify-content: center; }
+    .grid2, .grid3, .grid4 { grid-template-columns: 1fr; }
+    .week-grid { grid-template-columns: repeat(4,1fr); }
+    .page { padding: 20px 16px; }
+  }
+
+  /* GLOW EFFECTS */
+  .glow-text { text-shadow: 0 0 20px rgba(201,168,76,0.4); }
+  .gold-border { border-color: rgba(201,168,76,0.4) !important; }
+
+  /* ASSIGNMENT PRIORITY */
+  .priority-high { color: var(--red); }
+  .priority-med { color: var(--accent); }
+  .priority-low { color: var(--green); }
+
+  /* NOTES EDITOR */
+  .notes-editor {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 200px;
+    font-size: 13px;
+    color: var(--text2);
+    outline: none;
+    line-height: 1.8;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .notes-editor:focus { border-color: var(--accent); }
+  .toolbar { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+  .tool-btn { background: var(--bg4); border: 1px solid var(--border); color: var(--text2); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.15s; }
+  .tool-btn:hover { border-color: var(--accent); color: var(--accent2); }
+</style>
+</head>
+<body>
+
+
+<!-- SAVE INDICATOR -->
+<div id="save-indicator" style="position:fixed;bottom:16px;right:16px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:11px;color:var(--accent);opacity:0;transition:opacity 0.3s;z-index:400;pointer-events:none">💾 Saved</div>
+<div id="focus-overlay">
+  <div class="focus-subject" id="focus-subject-label">Mathematics</div>
+  <div class="focus-task" id="focus-task-label">Deep Work Session</div>
+  <div class="timer-display" id="focus-timer">25:00</div>
+  <div style="display:flex;gap:12px;justify-content:center">
+    <button class="btn btn-gold" onclick="controlFocusTimer()">▶ Start</button>
+    <button class="btn btn-outline" onclick="resetFocusTimer()">↺ Reset</button>
+  </div>
+  <button class="btn btn-outline focus-exit" onclick="exitFocus()">✕ Exit Focus</button>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div class="notif-area" id="notif-area"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- SIDEBAR TOGGLE -->
+<button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-logo">
+    <div class="zh">夜光学者</div>
+    <div class="en">Night Scholar Elite System</div>
+  </div>
+  <div class="sidebar-clock">
+    <div class="clock-time" id="clock">00:00:00</div>
+    <div class="clock-date" id="clock-date">—</div>
+  </div>
+  <div class="nav-section" style="flex:1;overflow-y:auto">
+    <div class="nav-label">Dashboard</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="icon">⚡</span> Command Center</div>
+    <div class="nav-item" onclick="showPage('focus',this)"><span class="icon">🎯</span> Focus Timer</div>
+    
+    <div class="nav-label">Planning</div>
+    <div class="nav-item" onclick="showPage('daily',this)"><span class="icon">📋</span> Daily Goals + AI</div>
+    <div class="nav-item" onclick="showPage('weekly',this)"><span class="icon">📅</span> Week Planner</div>
+    <div class="nav-item" onclick="showPage('yearplan',this)"><span class="icon">🗓</span> 3-Month Battle Plan</div>
+    <div class="nav-item" onclick="showPage('assignments',this)"><span class="icon">📌</span> Assignment Tracker</div>
+
+    <div class="nav-label">Subjects</div>
+    <div class="nav-item" onclick="showPage('subjects',this)"><span class="icon">📚</span> Subject Hub</div>
+    <div class="nav-item" onclick="showPage('notes',this)"><span class="icon">📝</span> Notes</div>
+    <div class="nav-item" onclick="showPage('spacerep',this)"><span class="icon">🔁</span> Spaced Repetition</div>
+    <div class="nav-item" onclick="showPage('grades',this)"><span class="icon">📊</span> Grade Tracker</div>
+
+    <div class="nav-label">System</div>
+    <div class="nav-item" onclick="showPage('routine',this)"><span class="icon">🌙</span> Night Routine</div>
+    <div class="nav-item" onclick="showPage('habits',this)"><span class="icon">🔥</span> Habit Tracker</div>
+    <div class="nav-item" onclick="showPage('rewards',this)"><span class="icon">🏆</span> Reward System</div>
+    <div class="nav-item" onclick="showPage('resources',this)"><span class="icon">🔗</span> Free Resources</div>
+    <div class="nav-item" onclick="showPage('settings',this)"><span class="icon">⚙️</span> Settings & Data</div>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="quote-box">
+      <span class="quote-zh">吃得苦中苦，方为人上人。</span>
+      Endure the hardest of hardships — become greater than the rest.
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Command Center</div>
+    <div class="topbar-right">
+      <span id="save-status" style="font-size:11px;color:var(--text2);letter-spacing:1px;transition:opacity 0.4s;opacity:0">● Saved</span>
+      <span id="topbar-pts" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent)">⭐ 0 pts</span>
+      <button class="btn btn-outline" id="save-btn" onclick="saveToFile()" title="Save (Ctrl+S)" style="display:flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save
+      </button>
+      <button class="btn btn-gold" onclick="startFocusMode()">🎯 Focus Mode</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="section-header">
+      <div class="section-title">好 · Welcome back, Scholar</div>
+      <div class="section-sub">You are building the version of yourself you've always wanted to be. One night at a time.</div>
+    </div>
+
+    <!-- STATS -->
+    <div class="grid4" style="margin-bottom:16px">
+      <div class="stat-card">
+        <div class="streak-flame" id="dash-streak-icon">🔥</div>
+        <div class="stat-num" id="dash-streak">0</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:24px;margin-bottom:4px">⭐</div>
+        <div class="stat-num" id="dash-points">0</div>
+        <div class="stat-label">Points</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:24px;margin-bottom:4px">✅</div>
+        <div class="stat-num" id="dash-done">0</div>
+        <div class="stat-label">Tasks Done Today</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:24px;margin-bottom:4px">⏱</div>
+        <div class="stat-num" id="dash-hours">0</div>
+        <div class="stat-label">Study Hours Today</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <!-- TODAY'S TASKS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Today's Missions</div>
+          <button class="btn btn-outline btn-sm" onclick="showPage('daily',document.querySelector('[onclick*=daily]'))">View All</button>
+        </div>
+        <div id="dash-tasks">
+          <div class="empty-state"><div class="empty-icon">📋</div>Generate your daily goals from the Daily Goals page</div>
+        </div>
+      </div>
+
+      <!-- SUBJECT PROGRESS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Subject Progress</div>
+          <button class="btn btn-outline btn-sm" onclick="showPage('grades',document.querySelector('[onclick*=grades]'))">Details</button>
+        </div>
+        <div id="subject-progress-bars"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- UPCOMING -->
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">⚡ Upcoming Due</div></div>
+        <div id="dash-upcoming"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚡ Quick Add Goal</div>
+          <button class="btn btn-outline btn-sm" onclick="showPage('daily',document.querySelector('[onclick*=daily]'))">Full Planner</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px">
+            <input type="text" id="dash-quick-task" placeholder="e.g. Solve 10 quadratic problems" style="flex:1" onkeydown="if(event.key==='Enter')dashQuickAdd()">
+            <button class="btn btn-gold" onclick="dashQuickAdd()">+ Add</button>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="dash-subject-pills"></div>
+          <div style="display:flex;gap:8px">
+            <select id="dash-quick-priority" style="flex:1;font-size:12px;padding:6px 8px"><option value="high">🔴 High Priority</option><option value="med" selected>🟡 Medium</option><option value="low">🟢 Low</option></select>
+            <select id="dash-quick-subject" style="flex:1;font-size:12px;padding:6px 8px" id="dash-quick-subj"></select>
+          </div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;line-height:1.6">
+            💡 <span style="color:var(--accent)">Goal-based studying:</span> Pick any task whenever you're ready. No fixed schedule — just finish what's on your list before you rest.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOCUS TIMER PAGE -->
+  <div class="page" id="page-focus">
+    <div class="section-header"><div class="section-title">Focus Timer</div><div class="section-sub">Deep work. No distractions. The Chinese method: 专注.</div></div>
+    <div class="grid2">
+      <div class="card" style="text-align:center">
+        <div class="timer-label" id="timer-mode-label">POMODORO · 25 MIN</div>
+        <div class="timer-display" id="main-timer">25:00</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px">
+          <button class="btn btn-gold" id="timer-btn" onclick="toggleTimer()">▶ Start</button>
+          <button class="btn btn-outline" onclick="resetTimer()">↺ Reset</button>
+          <button class="btn btn-outline" onclick="skipTimer()">⏭ Skip</button>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="setTimer(25,'POMODORO · 25 MIN')">25 min</button>
+          <button class="btn btn-outline btn-sm" onclick="setTimer(50,'DEEP WORK · 50 MIN')">50 min</button>
+          <button class="btn btn-outline btn-sm" onclick="setTimer(90,'ULTRA · 90 MIN')">90 min</button>
+          <button class="btn btn-outline btn-sm" onclick="setTimer(5,'SHORT BREAK · 5 MIN')">5 min break</button>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:12px;color:var(--text2);margin-top:8px">Session subject: <select id="timer-subject" style="width:auto;padding:4px 8px;font-size:12px"></select></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Session Log</div></div>
+        <div id="session-log" style="max-height:300px;overflow-y:auto">
+          <div class="empty-state"><div class="empty-icon">⏱</div>Complete sessions to build your log</div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2)">
+          <span>Total today: <b style="color:var(--accent2)" id="total-focus-time">0 min</b></span>
+          <span>Sessions: <b style="color:var(--accent2)" id="total-sessions">0</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="card-title">🔥 The Chinese Study Method — Implemented</div></div>
+      <div class="grid3" style="gap:12px">
+        <div style="background:var(--bg4);border-radius:8px;padding:14px;border:1px solid var(--border)"><div style="color:var(--accent);font-size:13px;font-weight:600;margin-bottom:6px">番茄工作法 · Pomodoro</div><div style="font-size:12px;color:var(--text2);line-height:1.6">25 min deep work → 5 min break. Do 4 cycles then take a 30 min break. Used by top Chinese gaokao scorers.</div></div>
+        <div style="background:var(--bg4);border-radius:8px;padding:14px;border:1px solid var(--border)"><div style="color:var(--accent);font-size:13px;font-weight:600;margin-bottom:6px">90-min Deep Sessions</div><div style="font-size:12px;color:var(--text2);line-height:1.6">For math & science problem solving. Unbroken 90 min of hard focus. Your brain's deepest learning happens here.</div></div>
+        <div style="background:var(--bg4);border-radius:8px;padding:14px;border:1px solid var(--border)"><div style="color:var(--accent);font-size:13px;font-weight:600;margin-bottom:6px">刷题法 · Drilling</div><div style="font-size:12px;color:var(--text2);line-height:1.6">Repetitive problem drilling until it becomes muscle memory. Chinese top students do 100+ problems daily. Start with 10, build up.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAILY GOALS + AI -->
+  <div class="page" id="page-daily">
+    <div class="section-header"><div class="section-title">Daily Goals + Smart Planner</div><div class="section-sub">No schedule. Just goals. Pick them up whenever you're ready — morning, afternoon, midnight, 3AM. Finish the list. That's all.</div></div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">🧠 Smart Goal Generator — No API Needed</div></div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg msg-ai">
+            <div class="msg-avatar">🌙</div>
+            <div class="bubble">你好, Scholar. I work fully offline — no internet, no API key needed.<br><br>Tell me what you need to study today. Be specific about what's behind, what's due soon, how you're feeling. I'll build your goal list.<br><br><b style="color:var(--accent2)">Example:</b> "I need to do math quadratics, haven't touched science in a week, HSK vocab test coming up, English essay due in 3 days and I haven't started"</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="chat-input" placeholder="Tell me what to focus on today..." onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="btn btn-gold" onclick="sendChat()">Generate Goals</button>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="quickGenerate('behind')">😰 I'm very behind</button>
+          <button class="btn btn-outline btn-sm" onclick="quickGenerate('exam')">📝 Exam coming up</button>
+          <button class="btn btn-outline btn-sm" onclick="quickGenerate('all')">⚡ Cover everything today</button>
+          <button class="btn btn-outline btn-sm" onclick="quickGenerate('light')">🌙 Light session</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Today's Goal List</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="openAddTodoModal()">+ Add</button>
+            <button class="btn btn-outline btn-sm" onclick="clearDoneTodos()">Clear Done</button>
+          </div>
+        </div>
+        <div id="todo-list"></div>
+        <div class="divider"></div>
+        <div style="font-size:12px;color:var(--text2);display:flex;justify-content:space-between;align-items:center">
+          <span id="todo-count">0 / 0 complete</span>
+          <button class="btn btn-outline btn-sm" onclick="logStudyDay()">✓ Log Day & Earn 50pts</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAILY MINIMUMS -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="card-title">📌 Non-Negotiable Daily Minimums (Elite Standard)</div><div style="font-size:11px;color:var(--text2)">Do these every day, no matter when</div></div>
+      <div class="grid3">
+        <div id="daily-min-list">
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">Review yesterday's notes (15 min)</div></div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">Complete minimum 1 past paper / practice set</div></div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">20 new vocabulary cards (HSK or any subject)</div></div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">Solve minimum 10 math problems</div></div>
+        </div>
+        <div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">30 min reading (any subject content)</div></div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">Update assignment tracker</div></div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">Write tomorrow's 3 main goals before sleeping</div></div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">Spaced repetition deck (at least 20 cards)</div></div>
+        </div>
+        <div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">No entertainment before completing 4+ goals</div></div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">Read and summarize 1 science or history topic</div></div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">Drink water between every study block</div></div>
+          <div class="todo-item"><div class="todo-check" onclick="toggleCheck(this)"></div><div class="todo-text">Log one thing you learned today</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK PLANNER -->
+  <div class="page" id="page-weekly">
+    <div class="section-header"><div class="section-title">Week Planner</div><div class="section-sub">Plan your week. Protect your study blocks. Dominate.</div></div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title" id="week-label">Week of —</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="prevWeek()">← Prev</button>
+          <button class="btn btn-outline btn-sm" onclick="nextWeek()">Next →</button>
+        </div>
+      </div>
+      <div class="week-grid" id="week-grid"></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="card-title">Weekly Study Block Template — Night Scholar</div></div>
+      <div class="scroll-x">
+        <table>
+          <thead><tr><th>Time</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr></thead>
+          <tbody id="timetable-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-MONTH BATTLE PLAN -->
+  <div class="page" id="page-yearplan">
+    <div class="section-header"><div class="section-title">3-Month Battle Plan</div><div class="section-sub">From zero to caught up. This is your war map. Edit each month's goal.</div></div>
+    <div class="card" style="margin-bottom:16px;border-color:rgba(201,168,76,0.3)">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--accent2);margin-bottom:8px">The Mission</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.8">You have <b style="color:var(--accent)">3 months</b> to transform. You will study <b style="color:var(--accent)">4–8+ hours daily</b> at night. By the end, you will have a solid foundation in all 7+ subjects, completed HSK prep, and be capable of solving exam questions without cheating. This is not a wish. This is a plan.</div>
+    </div>
+    <div id="month-plan-grid" class="grid3" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">📅 Subject Catch-Up Timeline</div></div>
+      <div id="subject-timeline"></div>
+    </div>
+  </div>
+
+  <!-- ASSIGNMENTS -->
+  <div class="page" id="page-assignments">
+    <div class="section-header"><div class="section-title">Assignment Tracker</div><div class="section-sub">Every subject. Every deadline. Nothing forgotten.</div></div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">Add Assignment</div></div>
+      <div class="form-row cols3">
+        <div><label>Subject</label><select id="assign-subject"></select></div>
+        <div><label>Assignment Title</label><input type="text" id="assign-title" placeholder="e.g. Chapter 4 Quadratics Practice"></div>
+        <div><label>Due Date</label><input type="date" id="assign-due"></div>
+      </div>
+      <div class="form-row cols3">
+        <div><label>Priority</label><select id="assign-priority"><option value="high">🔴 High (Exam/Major)</option><option value="med" selected>🟡 Medium</option><option value="low">🟢 Low</option></select></div>
+        <div><label>Estimated Hours</label><input type="number" id="assign-hours" placeholder="e.g. 3" min="0.5" step="0.5"></div>
+        <div><label>Notes</label><input type="text" id="assign-notes" placeholder="Details or resources needed"></div>
+      </div>
+      <button class="btn btn-gold" onclick="addAssignment()">+ Add Assignment</button>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="assign-filter">
+        <button class="btn btn-outline btn-sm active-filter" onclick="filterAssign('all',this)">All</button>
+        <button class="btn btn-outline btn-sm" onclick="filterAssign('pending',this)">Pending</button>
+        <button class="btn btn-outline btn-sm" onclick="filterAssign('done',this)">Done</button>
+        <span id="assign-subj-filters"></span>
+      </div>
+      <div id="assign-table"><div class="empty-state"><div class="empty-icon">📌</div>No assignments yet. Add your first above.</div></div>
+    </div>
+  </div>
+
+  <!-- SUBJECT HUB -->
+  <div class="page" id="page-subjects">
+    <div class="section-header"><div class="section-title">Subject Hub</div><div class="section-sub">Your subjects. Add as many as you need. Click to expand each one.</div></div>
+    <!-- ADD SUBJECT -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">+ Add New Subject</div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:1;min-width:160px"><label>Subject Name</label><input type="text" id="new-subj-name" placeholder="e.g. Biology, Literature, HSK..."></div>
+        <div style="width:120px"><label>Icon</label><select id="new-subj-icon"><option value="📚">📚 Book</option><option value="🧮">🧮 Math</option><option value="🔬">🔬 Science</option><option value="📖">📖 Reading</option><option value="🀄">🀄 Chinese</option><option value="📜">📜 History</option><option value="🎓">🎓 Course</option><option value="🔭">🔭 Astro</option><option value="💻">💻 Tech</option><option value="🎨">🎨 Art</option><option value="🎵">🎵 Music</option><option value="⚗️">⚗️ Chemistry</option><option value="🧬">🧬 Biology</option><option value="📐">📐 Geometry</option><option value="🌍">🌍 Geography</option><option value="✍️">✍️ Writing</option></select></div>
+        <div style="width:130px"><label>Color Accent</label><select id="new-subj-color"><option value="var(--blue)">🔵 Blue</option><option value="var(--green)">🟢 Green</option><option value="var(--purple)">🟣 Purple</option><option value="var(--red)">🔴 Red</option><option value="var(--accent)">🟡 Gold</option><option value="#e08a5c">🟠 Orange</option><option value="#5ce0d8">🩵 Teal</option><option value="#e05cb0">🩷 Pink</option></select></div>
+        <button class="btn btn-gold" onclick="addSubject()" style="margin-bottom:0">+ Add Subject</button>
+      </div>
+    </div>
+    <div id="subjects-hub"></div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="page" id="page-notes">
+    <div class="section-header"><div class="section-title">Notes</div><div class="section-sub">Write, organize, and find everything.</div></div>
+    <div class="grid2">
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-header"><div class="card-title">New Note</div></div>
+          <div class="form-row cols2">
+            <div><label>Title</label><input type="text" id="note-title" placeholder="Note title..."></div>
+            <div><label>Subject</label><select id="note-subject"></select></div>
+          </div>
+          <label>Content</label>
+          <div class="toolbar">
+            <button class="tool-btn" onclick="formatNote('bold')"><b>B</b></button>
+            <button class="tool-btn" onclick="formatNote('italic')"><i>I</i></button>
+            <button class="tool-btn" onclick="formatNote('underline')"><u>U</u></button>
+            <button class="tool-btn" onclick="insertNoteText('• ')">• List</button>
+            <button class="tool-btn" onclick="insertNoteText('→ ')">→ Arrow</button>
+            <button class="tool-btn" onclick="insertNoteText('⭐ ')">⭐</button>
+            <button class="tool-btn" onclick="insertNoteText('⚠ ')">⚠</button>
+          </div>
+          <div class="notes-editor" id="note-content" contenteditable="true" placeholder="Write your notes here..."></div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-gold" onclick="saveNote()">Save Note</button>
+            <button class="btn btn-outline" onclick="clearNote()">Clear</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="notes-filter"></div>
+        <div id="notes-list"><div class="empty-state"><div class="empty-icon">📝</div>No notes yet. Create your first.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPACED REPETITION -->
+  <div class="page" id="page-spacerep">
+    <div class="section-header"><div class="section-title">Spaced Repetition System</div><div class="section-sub">间隔重复法 · The #1 method used by Chinese top scorers to memorize everything.</div></div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Add Flashcard</div></div>
+        <div class="form-row">
+          <div><label>Subject</label><select id="sr-subject"></select></div>
+        </div>
+        <div style="margin-bottom:10px"><label>Question / Front</label><textarea id="sr-q" placeholder="What is the quadratic formula? / 什么是..."></textarea></div>
+        <div style="margin-bottom:12px"><label>Answer / Back</label><textarea id="sr-a" placeholder="x = (-b ± √(b²-4ac)) / 2a / ..."></textarea></div>
+        <button class="btn btn-gold" onclick="addFlashcard()">+ Add Card</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Review Due Cards</div>
+          <span id="due-count" class="tag tag-red">0 due</span>
+        </div>
+        <div id="sr-review-area">
+          <div class="empty-state"><div class="empty-icon">🔁</div>Add flashcards to start reviewing</div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px" id="sr-rating" style="display:none"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="card-title">All Cards</div><span id="total-cards" class="tag tag-gold">0 cards</span></div>
+      <div id="all-cards-list"></div>
+    </div>
+  </div>
+
+  <!-- GRADE TRACKER -->
+  <div class="page" id="page-grades">
+    <div class="section-header"><div class="section-title">Grade Tracker</div><div class="section-sub">Track every test, assignment, and exam. Know exactly where you stand.</div></div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">Log a Grade</div></div>
+      <div class="form-row cols3">
+        <div><label>Subject</label><select id="grade-subject"></select></div>
+        <div><label>Assessment Name</label><input type="text" id="grade-name" placeholder="e.g. Chapter 4 Test"></div>
+        <div><label>Score (%)</label><input type="number" id="grade-score" placeholder="e.g. 78" min="0" max="100"></div>
+      </div>
+      <div class="form-row cols2">
+        <div><label>Date</label><input type="date" id="grade-date"></div>
+        <div><label>Type</label><select id="grade-type"><option>Test</option><option>Assignment</option><option>Exam</option><option>Quiz</option><option>Project</option></select></div>
+      </div>
+      <button class="btn btn-gold" onclick="addGrade()">+ Log Grade</button>
+    </div>
+    <div id="grade-summary" class="grid4" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Grade History</div></div>
+      <div id="grade-table"><div class="empty-state"><div class="empty-icon">📊</div>No grades logged yet.</div></div>
+    </div>
+  </div>
+
+  <!-- NIGHT ROUTINE -->
+  <div class="page" id="page-routine">
+    <div class="section-header"><div class="section-title">The Night Scholar Routine</div><div class="section-sub">This is the system. Follow it for 3 months. Your life will change.</div></div>
+    
+    <div class="card" style="margin-bottom:16px;border-color:rgba(201,168,76,0.35)">
+      <div style="font-family:'Playfair Display',serif;font-size:17px;color:var(--accent2);margin-bottom:10px">The Philosophy</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.9">Chinese top students (清华, 北大 level) don't have more hours — they protect their hours with discipline. You study at night: <b style="color:var(--text)">this is your advantage</b>. No interruptions. No errands. Deep, unbroken focus. The world is quiet and you are building the person you've always wanted to be. The only rule: <b style="color:var(--accent)">when the clock hits your start time, everything else stops.</b></div>
+    </div>
+
+    <div id="routine-steps"></div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="card-title">⚠️ Discipline Laws — No Exceptions</div></div>
+      <div class="grid2">
+        <div>
+          <div class="rp-item"><div class="rp-icon">🚫</div><div class="rp-text">No YouTube or entertainment until 4+ study hours are done</div></div>
+          <div class="rp-item"><div class="rp-icon">🚫</div><div class="rp-text">No skipping a subject because "you don't feel like it"</div></div>
+          <div class="rp-item"><div class="rp-icon">🚫</div><div class="rp-text">No cheating on practice papers — it steals from your future</div></div>
+          <div class="rp-item"><div class="rp-icon">🚫</div><div class="rp-text">No using errand interruptions as excuses to abandon night sessions</div></div>
+        </div>
+        <div>
+          <div class="rp-item"><div class="rp-icon">✅</div><div class="rp-text">Always start even if you only have 30 minutes — momentum builds</div></div>
+          <div class="rp-item"><div class="rp-icon">✅</div><div class="rp-text">When you don't want to study: open the book anyway. Do 5 minutes.</div></div>
+          <div class="rp-item"><div class="rp-icon">✅</div><div class="rp-text">Reward yourself AFTER completing the minimum — never before</div></div>
+          <div class="rp-item"><div class="rp-icon">✅</div><div class="rp-text">Log every session — seeing your streak grow is addictive</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HABIT TRACKER -->
+  <div class="page" id="page-habits">
+    <div class="section-header"><div class="section-title">Habit Tracker</div><div class="section-sub">Small daily wins compound into massive transformation.</div></div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">Add Habit</div></div>
+      <div style="display:flex;gap:10px">
+        <input type="text" id="habit-input" placeholder="e.g. 'Solve 10 math problems' or 'Review HSK vocab'" style="flex:1">
+        <select id="habit-icon" style="width:100px"><option value="📚">📚 Study</option><option value="✍️">✍️ Write</option><option value="🔁">🔁 Review</option><option value="🧮">🧮 Math</option><option value="🀄">🀄 Chinese</option><option value="🏃">🏃 Exercise</option><option value="💧">💧 Water</option><option value="🎯">🎯 Focus</option></select>
+        <button class="btn btn-gold" onclick="addHabit()">+ Add</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">This Week's Habits</div>
+        <div style="display:flex;gap:6px;font-size:11px;color:var(--text2)">
+          <span id="hw-labels" style="display:flex;gap:28px;margin-right:8px"></span>
+        </div>
+      </div>
+      <div id="habit-list"><div class="empty-state"><div class="empty-icon">🔥</div>Add habits to track them daily</div></div>
+    </div>
+  </div>
+
+  <!-- REWARD SYSTEM -->
+  <div class="page" id="page-rewards">
+    <div class="section-header"><div class="section-title">Reward & Punishment System</div><div class="section-sub">Gamify your discipline. Earn points. Redeem rewards. Face consequences.</div></div>
+    <div class="points-bar">
+      <div>
+        <div class="points-num" id="total-points-display">0</div>
+        <div class="points-label">TOTAL SCHOLAR POINTS</div>
+      </div>
+      <div style="flex:1">
+        <div class="prog-bar" style="height:10px"><div class="prog-fill" id="points-prog" style="width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px">Next reward unlock: <span id="next-reward-label">100 pts</span></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header"><div class="card-title">🟢 Earn Points</div></div>
+        <div id="earn-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🏆 Redeem Rewards</div></div>
+        <div id="reward-list"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="card-title">🔴 Consequences (Self-Imposed)</div></div>
+      <div id="punishment-list"></div>
+    </div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="page" id="page-resources">
+    <div class="section-header"><div class="section-title">Free Resource Library</div><div class="section-sub">Everything you need is free. No excuses.</div></div>
+    <div id="resource-sections"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="section-header"><div class="section-title">Settings & Data</div><div class="section-sub">Save your file, manage your data.</div></div>
+
+    <!-- STATUS -->
+    <div id="protocol-status" style="margin-bottom:16px"></div>
+
+    <!-- SAVE -->
+    <div class="card" style="margin-bottom:16px;border-color:rgba(92,224,138,0.35)">
+      <div class="card-header"><div class="card-title">💾 Save Your File</div></div>
+      <div style="font-size:13px;color:var(--text2);line-height:2;margin-bottom:16px">
+        <div>Click <b style="color:var(--text)">Save</b> in the top bar (or press <b style="color:var(--accent)">Ctrl+S</b>) at any time.</div>
+        <div>It downloads an updated copy of this HTML file with all your data baked in.</div>
+        <div>Just <b style="color:var(--text)">replace your old file</b> with the new one — open it and everything is exactly where you left it.</div>
+      </div>
+      <button class="btn btn-gold" style="display:flex;align-items:center;gap:8px" onclick="saveToFile()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save File Now
+      </button>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="card" style="border-color:rgba(224,92,92,0.3)">
+      <div class="card-header"><div class="card-title" style="color:var(--red)">⚠️ Reset</div></div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px">This permanently deletes all your data — subjects, goals, grades, notes, streak, everything.</div>
+      <button class="btn btn-red" onclick="confirmClearAll()">🗑 Clear All Data</button>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<script>
+// ========== STATE ==========
+let state = {
+  points: 0,
+  streak: 0,
+  lastStudyDate: null,
+  todos: [],
+  assignments: [],
+  notes: [],
+  flashcards: [],
+  grades: [],
+  habits: [],
+  sessions: [],
+  totalFocusToday: 0,
+  sessionCount: 0,
+  weekOffset: 0,
+  currentSRIndex: 0,
+  currentNoteEdit: null,
+  subjects: []
+};
+
+// ========== STORAGE ==========
+const STORAGE_KEY = 'ns_v2_state';
+
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    showSaveStatus('● Saved', 'var(--green)');
+  } catch(e) {
+    console.error('Save failed:', e);
+    notify('⚠️ Could not auto-save — click Save button to save your file','red');
+  }
+}
+
+function load() {
+  try {
+    // First try embedded state (from a previously saved file)
+    if(window.__SAVED_STATE__) {
+      state = {...state, ...window.__SAVED_STATE__};
+      return;
+    }
+    // Fall back to localStorage
+    const d = localStorage.getItem(STORAGE_KEY);
+    if(d) state = {...state, ...JSON.parse(d)};
+  } catch(e) {
+    console.error('Load failed:', e);
+  }
+}
+
+function showSaveStatus(msg, color) {
+  const el = document.getElementById('save-status');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = color || 'var(--green)';
+  el.style.opacity = '1';
+  setTimeout(() => { el.style.opacity = '0'; }, 2000);
+}
+
+// Word-style save: embeds all data into the HTML file and downloads it
+async function saveToFile() {
+  const btn = document.getElementById('save-btn');
+  if(btn) { btn.textContent = '...'; btn.disabled = true; }
+  try {
+    // Read the current HTML source
+    const response = await fetch(window.location.href);
+    let html = await response.text();
+
+    // Remove any previously embedded state block
+    html = html.replace(/\n?<script id="__saved_state__">[\s\S]*?<\/script>/m, '');
+
+    // Inject current state just before </body>
+    const stateScript = `\n<script id="__saved_state__">window.__SAVED_STATE__ = ${JSON.stringify(state)};<\/script>`;
+    html = html.replace('</body>', stateScript + '\n</body>');
+
+    // Download as updated .html file
+    const blob = new Blob([html], {type: 'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'elite-night-scholar.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+
+    showSaveStatus('● Saved', 'var(--green)');
+    notify('File saved! Replace your old file with this one.', 'green');
+  } catch(e) {
+    // Fallback: can't fetch own source (e.g. opened from filesystem with strict CORS)
+    // Reconstruct HTML from document and inject state
+    try {
+      let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      html = html.replace(/\n?<script id="__saved_state__">[\s\S]*?<\/script>/m, '');
+      const stateScript = `\n<script id="__saved_state__">window.__SAVED_STATE__ = ${JSON.stringify(state)};<\/script>`;
+      html = html.replace('</body>', stateScript + '\n</body>');
+      const blob = new Blob([html], {type: 'text/html'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'elite-night-scholar.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+      showSaveStatus('● Saved', 'var(--green)');
+      notify('File saved! Replace your old file with this one.', 'green');
+    } catch(e2) {
+      showSaveStatus('● Save failed', 'var(--red)');
+      notify('Save failed. Try right-clicking → Save As to save manually.', 'red');
+    }
+  } finally {
+    if(btn) { btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save'; btn.disabled = false; }
+  }
+}
+
+// Ctrl+S keyboard shortcut
+document.addEventListener('keydown', (e) => {
+  if((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveToFile();
+  }
+});
+
+
+load();
+
+// ========== CLOCK ==========
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('clock-date').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ========== NAVIGATION ==========
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  const titles = {dashboard:'Command Center',focus:'Focus Timer',daily:'Daily Goals + AI',weekly:'Week Planner',yearplan:'3-Month Battle Plan',assignments:'Assignment Tracker',subjects:'Subject Hub',notes:'Notes',spacerep:'Spaced Repetition',grades:'Grade Tracker',routine:'Night Routine',habits:'Habit Tracker',rewards:'Reward System',resources:'Free Resources',settings:'Settings & Data'};
+  document.getElementById('page-title').textContent = titles[id] || id;
+  if(id==='weekly') renderWeek();
+  if(id==='daily') renderTodos();
+  if(id==='assignments') renderAssignments('all');
+  if(id==='grades') renderGrades();
+  if(id==='spacerep') renderSR();
+  if(id==='habits') renderHabits();
+  if(id==='rewards') renderRewards();
+  if(id==='notes') renderNotes('all');
+  if(id==='subjects') renderSubjects();
+  if(id==='dashboard') renderDashboard();
+  if(id==='resources') renderResources();
+  if(id==='routine') renderRoutine();
+  if(id==='yearplan') renderYearPlan();
+  if(id==='settings') renderSettingsPage();
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+// ========== NOTIFICATIONS ==========
+function notify(msg, type='gold') {
+  const area = document.getElementById('notif-area');
+  const el = document.createElement('div');
+  el.className = 'notif';
+  const icons = {gold:'⭐',green:'✅',red:'❌',blue:'ℹ️'};
+  el.innerHTML = `<span>${icons[type]||'⭐'}</span><span>${msg}</span>`;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ========== POINTS ==========
+function addPoints(n, reason) {
+  state.points += n;
+  document.getElementById('topbar-pts').textContent = `⭐ ${state.points} pts`;
+  document.getElementById('dash-points').textContent = state.points;
+  notify(`+${n} pts · ${reason}`, 'gold');
+  save();
+  updatePointsBar();
+}
+
+function updatePointsBar() {
+  const el = document.getElementById('total-points-display');
+  if(el) el.textContent = state.points;
+  const prog = document.getElementById('points-prog');
+  const milestones = [100,250,500,1000,2000];
+  let next = milestones.find(m => m > state.points) || milestones[milestones.length-1];
+  let prev = milestones.find(m => m === next) ? (milestones[milestones.indexOf(next)-1] || 0) : 0;
+  const pct = Math.min(100, ((state.points - prev) / (next - prev)) * 100);
+  if(prog) prog.style.width = pct + '%';
+  const nl = document.getElementById('next-reward-label');
+  if(nl) nl.textContent = `${next} pts`;
+}
+
+// ========== TODO ==========
+function renderTodos() {
+  const el = document.getElementById('todo-list');
+  if(!state.todos.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>Use the AI to generate goals or add manually</div>'; updateTodoCount(); return; }
+  el.innerHTML = state.todos.map((t,i) => `
+    <div class="todo-item">
+      <div class="todo-check ${t.done?'done':''}" onclick="toggleTodo(${i})"></div>
+      <div class="todo-text ${t.done?'done':''}" contenteditable="true" onblur="editTodo(${i},this.textContent)">${t.text}</div>
+      <div class="tag tag-${t.priority==='high'?'red':t.priority==='med'?'gold':'green'}" style="font-size:9px">${t.subject||''}</div>
+      <button onclick="deleteTodo(${i})" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;padding:0 4px">✕</button>
+    </div>`).join('');
+  updateTodoCount();
+  renderDashTasks();
+}
+
+function updateTodoCount() {
+  const done = state.todos.filter(t=>t.done).length;
+  const el = document.getElementById('todo-count');
+  if(el) el.textContent = `${done} / ${state.todos.length} complete`;
+  document.getElementById('dash-done').textContent = done;
+}
+
+function toggleTodo(i) {
+  state.todos[i].done = !state.todos[i].done;
+  if(state.todos[i].done) addPoints(10, 'Task completed');
+  save(); renderTodos();
+}
+function editTodo(i, v) { state.todos[i].text = v; save(); }
+function deleteTodo(i) { state.todos.splice(i,1); save(); renderTodos(); }
+function clearDoneTodos() { state.todos = state.todos.filter(t=>!t.done); save(); renderTodos(); }
+function openAddTodoModal() {
+  const subjOptions = getSubjectNames().map(s=>`<option>${s}</option>`).join('');
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-title">Add Goal</div>
+    <div style="margin-bottom:12px"><label>Task Description</label><input type="text" id="m-task" placeholder="e.g. Complete quadratics worksheet p.34-36" autofocus></div>
+    <div class="form-row cols2">
+      <div><label>Subject</label><select id="m-subj">${subjOptions}</select></div>
+      <div><label>Priority</label><select id="m-pri"><option value="high">🔴 High</option><option value="med" selected>🟡 Medium</option><option value="low">🟢 Low</option></select></div>
+    </div>
+    <div style="margin-bottom:16px"><label>Notes (optional)</label><input type="text" id="m-notes" placeholder="Extra detail, resource, page number..."></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-gold" onclick="confirmAddTodo()">Add Goal</button>
+      <button class="btn btn-outline" onclick="closeModalDirect()">Cancel</button>
+    </div>`;
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('m-task')?.focus(),100);
+}
+function confirmAddTodo() {
+  const text = document.getElementById('m-task').value.trim();
+  const subj = document.getElementById('m-subj').value;
+  const priority = document.getElementById('m-pri').value;
+  const notes = document.getElementById('m-notes').value;
+  if(!text) { notify('Enter a task','red'); return; }
+  state.todos.push({text, done:false, priority, subject:subj, notes});
+  save(); renderTodos(); closeModalDirect();
+  notify('Goal added ✓','green');
+}
+function closeModalDirect() { document.getElementById('modal').classList.remove('open'); }
+function addTodoManual() { openAddTodoModal(); }
+
+function renderDashTasks() {
+  const el = document.getElementById('dash-tasks');
+  if(!el) return;
+  let items = currentSubjFilter ? state.todos.filter(t=>t.subject===currentSubjFilter) : state.todos;
+  items = items.slice(0,8);
+  if(!items.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>Add goals above or use AI planner</div>'; return; }
+  el.innerHTML = items.map((t,i) => {
+    const realIdx = state.todos.indexOf(t);
+    return `<div class="todo-item">
+      <div class="todo-check ${t.done?'done':''}" onclick="toggleTodo(${realIdx})"></div>
+      <div class="todo-text ${t.done?'done':''}">${t.text}</div>
+      <div class="tag tag-${t.priority==='high'?'red':t.priority==='med'?'gold':'green'}" style="font-size:9px">${t.subject||''}</div>
+    </div>`;
+  }).join('');
+}
+
+function logStudyDay() {
+  const today = new Date().toDateString();
+  if(state.lastStudyDate !== today) {
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+    if(state.lastStudyDate === yesterday.toDateString()) { state.streak++; }
+    else if(state.lastStudyDate !== today) { state.streak = 1; }
+    state.lastStudyDate = today;
+    addPoints(50, `Day ${state.streak} streak!`);
+    document.getElementById('dash-streak').textContent = state.streak;
+    notify(`🔥 Day ${state.streak} streak maintained!`, 'gold');
+  }
+  save();
+}
+
+// ========== SMART GOAL GENERATOR (fully offline, no API needed) ==========
+
+// Subject-specific task templates
+const TASK_TEMPLATES = {
+  default: {
+    behind: [
+      'Read and summarize the key concepts from the last 2 chapters you missed (45 min)',
+      'Write out the 10 most important facts/formulas from recent topics you skipped (20 min)',
+      'Find and attempt 1 past exam question on the topics you\'ve been avoiding (30 min)',
+      'Create a mind map of everything you know in this subject right now — identify gaps (25 min)',
+      'Watch 2 explanation videos on the topics you\'re most lost on (40 min)',
+    ],
+    normal: [
+      'Review your notes from the last session and rewrite anything unclear (20 min)',
+      'Complete 1 full practice problem set on the current topic (35 min)',
+      'Find 1 past paper question and attempt it without looking at notes first (25 min)',
+      'Create 10 flashcards for the most important terms or concepts (15 min)',
+      'Summarize what you learned today in 5 sentences (10 min)',
+    ],
+    exam: [
+      'Attempt 1 full past paper section under timed conditions (45 min)',
+      'Go through your mistake log and redo every question you got wrong before (30 min)',
+      'Condense your notes into a 1-page cheat sheet of critical facts (20 min)',
+      'Do 20 rapid-fire flashcard reviews on exam topics (15 min)',
+      'Write out the answer to a likely essay/long-answer question from memory (30 min)',
+    ]
+  }
+};
+
+// Keyword detection maps
+const KEYWORD_MAP = {
+  behind: ['behind','missed','haven\'t touched','skipped','lost','forgot','weak','struggling','confused','not done','never done','haven\'t started'],
+  exam: ['exam','test','quiz','assessment','due','deadline','tomorrow','this week','3 days','2 days','next week','submit'],
+  math: ['math','maths','algebra','calculus','quadratic','equation','geometry','trigonometry','statistics','numbers','formula','solve','problems'],
+  essay: ['essay','write','writing','paragraph','argument','thesis','english','literature','comprehension','reading'],
+  vocab: ['vocab','vocabulary','words','hsk','chinese','mandarin','characters','flashcard','memorize','language'],
+  science: ['science','physics','chemistry','biology','experiment','formula','periodic','cell','genetics','mechanics','waves','energy'],
+  history: ['history','historical','war','revolution','empire','timeline','source','analysis','century','ancient','modern'],
+};
+
+// Subject-specific task packs keyed by common name fragments
+const SUBJECT_TASKS = {
+  math: {
+    behind: [
+      'Solve 15 basic problems on the topic you\'ve been avoiding — start easy, build up (40 min)',
+      'Watch a Khan Academy explanation video on your weakest math topic, take notes (30 min)',
+      'Go back to the last chapter you understood and work forward from there — do every exercise (50 min)',
+      'List every formula you don\'t know yet and write each one out 5 times (20 min)',
+    ],
+    normal: [
+      'Solve 20 practice problems drilling the current topic — mark every mistake (45 min)',
+      'Attempt 3 past paper math questions — show all working, check answers (30 min)',
+      'Do Khan Academy exercises on today\'s topic until you hit 5 correct in a row (25 min)',
+      'Write out proofs or worked examples for the 3 hardest concepts this week (30 min)',
+    ],
+    exam: [
+      'Do a full timed past paper math section — no calculator if exam doesn\'t allow it (50 min)',
+      'Redo every math question you\'ve gotten wrong this month (35 min)',
+      'Speed drill: solve 30 basic problems as fast as possible — build automaticity (20 min)',
+      'Write out every formula from memory — check what you missed and drill those (15 min)',
+    ]
+  },
+  chinese: {
+    behind: [
+      'Learn 30 new HSK vocabulary words using HelloChinese or Pleco — write each one 3 times (40 min)',
+      'Listen to a 10-min Chinese audio clip and write down every word you recognise (20 min)',
+      'Write out the 50 most common HSK characters from your level from memory (30 min)',
+      'Go through HSK word list and mark every word you don\'t know — start learning them (25 min)',
+    ],
+    normal: [
+      'Review 20 HSK flashcards — mark any you got wrong for extra drilling (15 min)',
+      'Write 5 sentences using today\'s new vocabulary words in context (20 min)',
+      'Practice reading a short Chinese passage aloud — look up unknown words (25 min)',
+      'Complete one HSK listening exercise and write down what you understood (20 min)',
+    ],
+    exam: [
+      'Do a full timed HSK reading section from a past paper (30 min)',
+      'Write out the answer to a typical HSK writing question under time pressure (20 min)',
+      'Speed review: 50 vocabulary cards in 15 minutes — keep score (15 min)',
+      'Practice dictation: listen and write out a 100-word Chinese passage (25 min)',
+    ]
+  },
+  english: {
+    behind: [
+      'Read the chapter or text you\'ve been avoiding and take structured notes (40 min)',
+      'Write a rough first draft of any overdue essay — even just a messy outline counts (35 min)',
+      'Go through your grammar notes and find 3 rules you\'re unsure about — practice them (25 min)',
+      'Read 2 model essays and identify the structure, topic sentences, and evidence used (30 min)',
+    ],
+    normal: [
+      'Write 1 full practice paragraph with topic sentence, evidence, and analysis (25 min)',
+      'Do 15 comprehension questions on the current text — answer in full sentences (30 min)',
+      'Revise your last essay draft — improve 3 arguments and fix grammar errors (25 min)',
+      'Identify 10 new vocabulary words from your current reading and write definitions (15 min)',
+    ],
+    exam: [
+      'Write a full timed essay response to a past paper question (45 min)',
+      'Do a full timed comprehension section from a past English paper (35 min)',
+      'Review your essay marking criteria and rewrite your weakest paragraph (20 min)',
+      'Write essay introductions for 5 different past paper questions (25 min)',
+    ]
+  },
+  science: {
+    behind: [
+      'Read 1 full topic from your science textbook and write a summary paragraph (35 min)',
+      'Watch a CrashCourse video on your weakest science topic and write 10 key points (25 min)',
+      'Draw and label every diagram you\'re expected to know — check against textbook (30 min)',
+      'Write out all equations and units you should know — identify the gaps (20 min)',
+    ],
+    normal: [
+      'Complete 10 science practice questions on the current topic (30 min)',
+      'Draw a concept map connecting all the ideas in the current chapter (20 min)',
+      'Attempt 2 past paper science questions — explain your reasoning fully (25 min)',
+      'Write out definitions for every key term in the current chapter (15 min)',
+    ],
+    exam: [
+      'Attempt a full timed science paper section from a past exam (45 min)',
+      'Redo every science question you\'ve gotten wrong recently (30 min)',
+      'Create a 1-page formula and definition sheet for the exam topic (20 min)',
+      'Explain the top 5 most complex concepts in your own words — no notes (20 min)',
+    ]
+  },
+  history: {
+    behind: [
+      'Create a timeline of the major events in the current history topic (25 min)',
+      'Read 1 chapter of your textbook and extract: causes, events, consequences (40 min)',
+      'Watch a documentary or YouTube video on the period you\'re behind on (30 min)',
+      'Write a 1-paragraph summary of each key event you\'ve missed (35 min)',
+    ],
+    normal: [
+      'Analyse 1 historical source: identify perspective, purpose, and limitations (25 min)',
+      'Write a 3-paragraph argument on a key history essay question (30 min)',
+      'Create flashcards for 15 key dates, people, and events (20 min)',
+      'Compare two historical events or turning points in a structured table (25 min)',
+    ],
+    exam: [
+      'Write a full essay response to a past history paper question under time (40 min)',
+      'Review your essay marking criteria and re-outline 3 essay questions (25 min)',
+      'Speed review: write out 30 key dates and events from memory (15 min)',
+      'Practice writing introductions and conclusions for 4 past paper questions (30 min)',
+    ]
+  }
+};
+
+// Universal always-included tasks
+const UNIVERSAL_TASKS = [
+  { text: 'Review your notes from yesterday — rewrite anything you\'re still unclear on (15 min)', priority: 'med' },
+  { text: 'Add 10 new flashcards to your spaced repetition deck (10 min)', priority: 'low' },
+  { text: 'Review 20 flashcard cards that are due today (10 min)', priority: 'med' },
+  { text: 'Write down the 3 things you want to finish before you sleep tonight (5 min)', priority: 'high' },
+];
+
+function detectMode(msg) {
+  const m = msg.toLowerCase();
+  if (KEYWORD_MAP.exam.some(k => m.includes(k))) return 'exam';
+  if (KEYWORD_MAP.behind.some(k => m.includes(k))) return 'behind';
+  return 'normal';
+}
+
+function matchSubject(name, msg) {
+  const n = name.toLowerCase();
+  const m = msg.toLowerCase();
+  // direct name match
+  if (m.includes(n)) return true;
+  // keyword group match
+  if ((n.includes('math') || n.includes('maths')) && KEYWORD_MAP.math.some(k => m.includes(k))) return true;
+  if ((n.includes('chinese') || n.includes('hsk') || n.includes('mandarin')) && KEYWORD_MAP.vocab.some(k => m.includes(k))) return true;
+  if ((n.includes('english') || n.includes('literature')) && (KEYWORD_MAP.essay.some(k => m.includes(k)))) return true;
+  if ((n.includes('science') || n.includes('physics') || n.includes('chemistry') || n.includes('biology')) && KEYWORD_MAP.science.some(k => m.includes(k))) return true;
+  if (n.includes('history') && KEYWORD_MAP.history.some(k => m.includes(k))) return true;
+  return false;
+}
+
+function getTasksForSubject(subj, mode) {
+  const n = subj.name.toLowerCase();
+  let pack = null;
+  if (n.includes('math')) pack = SUBJECT_TASKS.math;
+  else if (n.includes('chinese') || n.includes('hsk') || n.includes('mandarin')) pack = SUBJECT_TASKS.chinese;
+  else if (n.includes('english') || n.includes('literature')) pack = SUBJECT_TASKS.english;
+  else if (n.includes('science') || n.includes('physics') || n.includes('chemistry') || n.includes('biology')) pack = SUBJECT_TASKS.science;
+  else if (n.includes('history')) pack = SUBJECT_TASKS.history;
+  else pack = TASK_TEMPLATES.default;
+  const list = pack[mode] || pack.normal || TASK_TEMPLATES.default.normal;
+  // shuffle and pick 2-3
+  const shuffled = [...list].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, mode === 'exam' ? 3 : 2);
+}
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function generateGoals(msg, mode) {
+  const subjects = state.subjects;
+  const goals = [];
+  const usedSubjects = [];
+
+  // detect which subjects are explicitly mentioned or implied
+  if (subjects.length > 0) {
+    subjects.forEach(subj => {
+      if (matchSubject(subj.name, msg) || mode === 'all') {
+        const tasks = getTasksForSubject(subj, mode === 'all' ? 'normal' : mode);
+        tasks.forEach(t => goals.push({ text: `${subj.name} — ${t}`, subject: subj.name, priority: mode === 'exam' ? 'high' : 'med' }));
+        usedSubjects.push(subj.name);
+      }
+    });
+    // if nothing matched, include all subjects lightly
+    if (goals.length === 0) {
+      subjects.forEach(subj => {
+        const tasks = getTasksForSubject(subj, 'normal');
+        goals.push({ text: `${subj.name} — ${tasks[0]}`, subject: subj.name, priority: 'med' });
+      });
+    }
+  } else {
+    // no subjects set — use generic tasks
+    const generic = shuffle(TASK_TEMPLATES.default[mode] || TASK_TEMPLATES.default.normal).slice(0, 6);
+    generic.forEach(t => goals.push({ text: t, subject: 'General', priority: 'med' }));
+  }
+
+  // always add 1-2 universal tasks
+  const universals = shuffle(UNIVERSAL_TASKS).slice(0, 2);
+  universals.forEach(u => goals.push({ text: u.text, subject: 'Review', priority: u.priority }));
+
+  return goals;
+}
+
+const MOTIVATIONAL_QUOTES = [
+  { zh: '吃得苦中苦，方为人上人。', en: 'Endure the hardest hardships — rise above everyone else.' },
+  { zh: '书山有路勤为径，学海无涯苦作舟。', en: 'In the mountain of books, diligence is the path. In the sea of learning, hard work is the boat.' },
+  { zh: '不积跬步，无以至千里。', en: 'Without small steps, you cannot reach a thousand miles.' },
+  { zh: '天才是百分之一的灵感加百分之九十九的汗水。', en: '1% inspiration, 99% sweat. The work is the answer.' },
+  { zh: '今日事，今日毕。', en: 'Today\'s work must be finished today. No carrying it forward.' },
+  { zh: '勤能补拙。', en: 'Hard work compensates for lack of talent. You just need to work.' },
+  { zh: '千里之行，始于足下。', en: 'A journey of a thousand miles begins beneath your feet. Start now.' },
+];
+
+function buildPlanResponse(msg, mode, goals) {
+  const modeLabel = { behind: '🚨 CATCH-UP BATTLE PLAN', exam: '📝 EXAM CRUNCH PLAN', normal: '⚡ DAILY BATTLE PLAN', light: '🌙 LIGHT SESSION PLAN', all: '💥 FULL COVERAGE PLAN' }[mode] || '⚡ DAILY BATTLE PLAN';
+  const quote = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+  const lines = goals.map((g, i) => `${i + 1}. ${g.text}`).join('<br>');
+  return `<b style="color:var(--accent2)">${modeLabel}:</b><br><br>${lines}<br><br><span style="font-family:'Noto Serif SC',serif;color:var(--accent)">${quote.zh}</span><br><span style="font-size:12px;color:var(--text2);font-style:italic">${quote.en}</span>`;
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) { notify('Tell me what you need to study!', 'red'); return; }
+  input.value = '';
+  addChatMsg(msg, 'user');
+
+  // simulate a short thinking delay for UX
+  const typing = addTyping();
+  setTimeout(() => {
+    typing.remove();
+    const mode = detectMode(msg);
+    const goals = generateGoals(msg, mode);
+    const response = buildPlanResponse(msg, mode, goals);
+    addChatMsg(response, 'ai');
+
+    // push to todo list
+    goals.forEach(g => state.todos.push({ text: g.text, done: false, priority: g.priority, subject: g.subject }));
+    save(); renderTodos();
+    notify(`${goals.length} goals added to your list! 加油！`, 'green');
+  }, 900 + Math.random() * 600);
+}
+
+function quickGenerate(mode) {
+  const modeMessages = {
+    behind: 'I am very behind on my subjects and need to catch up fast',
+    exam: 'I have an exam or test coming up soon and need to prepare',
+    all: 'I want to cover all my subjects today with a full session',
+    light: 'I only have a short session tonight, give me the essentials'
+  };
+  document.getElementById('chat-input').value = modeMessages[mode] || '';
+  sendChat();
+}
+
+function addChatMsg(text, role) {
+  const area = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role}`;
+  div.innerHTML = `<div class="msg-avatar">${role==='ai'?'🌙':'👤'}</div><div class="bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+function addTyping() {
+  const area = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  div.innerHTML = `<div class="msg-avatar">🌙</div><div class="bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+// ========== TIMER ==========
+let timerInterval = null;
+let timerSeconds = 25 * 60;
+let timerRunning = false;
+let timerMode = 'pomodoro';
+let focusTimerInterval = null;
+let focusTimerSeconds = 25 * 60;
+let focusRunning = false;
+
+function setTimer(mins, label) {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = mins * 60;
+  document.getElementById('timer-mode-label').textContent = label;
+  document.getElementById('main-timer').textContent = formatTime(timerSeconds);
+  document.getElementById('timer-btn').textContent = '▶ Start';
+}
+
+function toggleTimer() {
+  if(timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer-btn').textContent = '▶ Resume';
+  } else {
+    timerRunning = true;
+    document.getElementById('timer-btn').textContent = '⏸ Pause';
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      document.getElementById('main-timer').textContent = formatTime(timerSeconds);
+      if(timerSeconds <= 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        const subj = document.getElementById('timer-subject').value;
+        const mins = parseInt(document.getElementById('timer-mode-label').textContent) || 25;
+        logSession(subj, mins);
+        notify('Session complete! 🎉 Take your break.', 'green');
+        timerSeconds = 5 * 60;
+        document.getElementById('main-timer').textContent = formatTime(timerSeconds);
+        document.getElementById('timer-mode-label').textContent = 'SHORT BREAK · 5 MIN';
+        document.getElementById('timer-btn').textContent = '▶ Start';
+      }
+    }, 1000);
+  }
+}
+
+function resetTimer() { clearInterval(timerInterval); timerRunning = false; setTimer(25,'POMODORO · 25 MIN'); }
+function skipTimer() { clearInterval(timerInterval); timerRunning = false; timerSeconds = 0; document.getElementById('main-timer').textContent = '00:00'; }
+
+function logSession(subj, mins) {
+  state.totalFocusToday += mins;
+  state.sessionCount++;
+  state.sessions.unshift({subject: subj, mins, time: new Date().toLocaleTimeString()});
+  document.getElementById('total-focus-time').textContent = state.totalFocusToday + ' min';
+  document.getElementById('total-sessions').textContent = state.sessionCount;
+  document.getElementById('dash-hours').textContent = Math.round(state.totalFocusToday / 60 * 10) / 10;
+  addPoints(mins >= 50 ? 30 : 15, `${mins} min ${subj} session`);
+  renderSessionLog();
+  save();
+}
+
+function renderSessionLog() {
+  const el = document.getElementById('session-log');
+  if(!state.sessions.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏱</div>Complete sessions to build your log</div>'; return; }
+  el.innerHTML = state.sessions.slice(0,10).map(s => `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2)">
+      <span>📚 ${s.subject}</span>
+      <span style="color:var(--accent2);font-family:'DM Mono',monospace">${s.mins} min</span>
+      <span>${s.time}</span>
+    </div>`).join('');
+}
+
+// FOCUS MODE
+function startFocusMode() {
+  document.getElementById('focus-overlay').classList.add('show');
+  focusTimerSeconds = 25 * 60;
+  document.getElementById('focus-timer').textContent = formatTime(focusTimerSeconds);
+}
+function exitFocus() {
+  clearInterval(focusTimerInterval);
+  focusRunning = false;
+  document.getElementById('focus-overlay').classList.remove('show');
+}
+function controlFocusTimer() {
+  const btn = document.querySelector('#focus-overlay .btn-gold');
+  if(focusRunning) {
+    clearInterval(focusTimerInterval); focusRunning = false; btn.textContent = '▶ Resume';
+  } else {
+    focusRunning = true; btn.textContent = '⏸ Pause';
+    focusTimerInterval = setInterval(() => {
+      focusTimerSeconds--;
+      document.getElementById('focus-timer').textContent = formatTime(focusTimerSeconds);
+      if(focusTimerSeconds <= 0) { clearInterval(focusTimerInterval); focusRunning = false; exitFocus(); notify('Focus session complete! 🎉','green'); logSession('Focus',25); }
+    }, 1000);
+  }
+}
+function resetFocusTimer() { clearInterval(focusTimerInterval); focusRunning = false; focusTimerSeconds=25*60; document.getElementById('focus-timer').textContent=formatTime(focusTimerSeconds); document.querySelector('#focus-overlay .btn-gold').textContent='▶ Start'; }
+function formatTime(s) { return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+
+// ========== ASSIGNMENTS ==========
+function addAssignment() {
+  const subj = document.getElementById('assign-subject').value;
+  const title = document.getElementById('assign-title').value.trim();
+  const due = document.getElementById('assign-due').value;
+  const priority = document.getElementById('assign-priority').value;
+  const hours = document.getElementById('assign-hours').value;
+  const notes = document.getElementById('assign-notes').value;
+  if(!title) { notify('Enter assignment title','red'); return; }
+  state.assignments.unshift({subj, title, due, priority, hours, notes, done: false, id: Date.now()});
+  save(); renderAssignments('all'); notify('Assignment added ✓','green');
+  document.getElementById('assign-title').value = '';
+  document.getElementById('assign-notes').value = '';
+  renderDashUpcoming();
+}
+
+function renderAssignments(filter) {
+  // populate subject filter buttons
+  const sfEl = document.getElementById('assign-subj-filters');
+  if(sfEl) {
+    sfEl.innerHTML = getSubjectNames().map(n=>`<button class="btn btn-outline btn-sm" onclick="filterAssign('${n}',this)" style="margin-left:4px">${n}</button>`).join('');
+  }
+  const el = document.getElementById('assign-table');
+  let list = state.assignments;
+  if(filter === 'pending') list = list.filter(a=>!a.done);
+  else if(filter === 'done') list = list.filter(a=>a.done);
+  else if(filter !== 'all') list = list.filter(a=>a.subj===filter);
+  if(!list.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📌</div>No assignments found.</div>'; return; }
+  el.innerHTML = `<table><thead><tr><th>Subject</th><th>Title</th><th>Due</th><th>Priority</th><th>Est. Hours</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>
+  ${list.map((a,i) => {
+    const idx = state.assignments.indexOf(a);
+    const daysLeft = a.due ? Math.ceil((new Date(a.due)-new Date())/(1000*60*60*24)) : null;
+    return `<tr>
+      <td><span class="tag tag-blue">${a.subj}</span></td>
+      <td style="color:var(--text);${a.done?'text-decoration:line-through;opacity:0.5':''}">${a.title}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;${daysLeft!==null&&daysLeft<=3&&!a.done?'color:var(--red)':''}">${a.due || '—'}${daysLeft!==null&&!a.done?` <span style="font-size:10px">(${daysLeft}d)</span>`:''}</td>
+      <td><span class="priority-${a.priority}">${a.priority==='high'?'🔴 High':a.priority==='med'?'🟡 Med':'🟢 Low'}</span></td>
+      <td style="font-family:'DM Mono',monospace">${a.hours||'—'}h</td>
+      <td style="font-size:11px;max-width:150px">${a.notes||'—'}</td>
+      <td><span class="tag ${a.done?'tag-green':'tag-gold'}">${a.done?'Done':'Pending'}</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-green btn-sm" onclick="toggleAssign(${idx})">${a.done?'↺':'✓'}</button>
+        <button class="btn btn-red btn-sm" onclick="deleteAssign(${idx})">✕</button>
+      </td>
+    </tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+function filterAssign(f, btn) {
+  document.querySelectorAll('#assign-filter .btn').forEach(b=>b.classList.remove('active-filter'));
+  btn.classList.add('active-filter');
+  renderAssignments(f);
+}
+
+function toggleAssign(i) {
+  state.assignments[i].done = !state.assignments[i].done;
+  if(state.assignments[i].done) addPoints(25, 'Assignment completed');
+  save(); renderAssignments('all');
+}
+function deleteAssign(i) { if(confirm('Delete?')) { state.assignments.splice(i,1); save(); renderAssignments('all'); } }
+
+function renderDashUpcoming() {
+  const el = document.getElementById('dash-upcoming');
+  if(!el) return;
+  const upcoming = state.assignments.filter(a=>!a.done&&a.due).sort((a,b)=>new Date(a.due)-new Date(b.due)).slice(0,5);
+  if(!upcoming.length) { el.innerHTML = '<div class="empty-state" style="padding:20px"><div class="empty-icon">📌</div>No upcoming deadlines</div>'; return; }
+  el.innerHTML = upcoming.map(a => {
+    const daysLeft = Math.ceil((new Date(a.due)-new Date())/(1000*60*60*24));
+    return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+      <span style="color:var(--text)">${a.title}</span>
+      <span style="color:${daysLeft<=2?'var(--red)':daysLeft<=5?'var(--accent)':'var(--green)'}">in ${daysLeft}d</span>
+    </div>`;
+  }).join('');
+}
+
+// ========== NOTES ==========
+function saveNote() {
+  const title = document.getElementById('note-title').value.trim();
+  const subj = document.getElementById('note-subject').value;
+  const content = document.getElementById('note-content').innerHTML;
+  if(!title) { notify('Enter note title','red'); return; }
+  const note = {id: state.currentNoteEdit || Date.now(), title, subj, content, date: new Date().toLocaleDateString()};
+  if(state.currentNoteEdit) {
+    const i = state.notes.findIndex(n=>n.id===state.currentNoteEdit);
+    if(i>=0) state.notes[i] = note; else state.notes.unshift(note);
+  } else { state.notes.unshift(note); }
+  state.currentNoteEdit = null;
+  save(); clearNote(); renderNotes('all'); addPoints(5,'Note saved'); notify('Note saved ✓','green');
+}
+function clearNote() { document.getElementById('note-title').value=''; document.getElementById('note-content').innerHTML=''; state.currentNoteEdit=null; }
+function formatNote(cmd) { document.execCommand(cmd); document.getElementById('note-content').focus(); }
+function insertNoteText(t) { const el = document.getElementById('note-content'); el.focus(); document.execCommand('insertText',false,t); }
+function renderNotes(filter) {
+  // Populate filter buttons
+  const filterEl = document.getElementById('notes-filter');
+  if(filterEl) {
+    const names = getSubjectNames();
+    filterEl.innerHTML = `<button class="btn btn-outline btn-sm" onclick="filterNotes('all',this)" style="${filter==='all'?'border-color:var(--accent);color:var(--accent2)':''}">All</button>` +
+      names.map(n=>`<button class="btn btn-outline btn-sm" onclick="filterNotes('${n}',this)" style="${filter===n?'border-color:var(--accent);color:var(--accent2)':''}">${n}</button>`).join('');
+  }
+  const el = document.getElementById('notes-list');
+  let list = state.notes;
+  if(filter !== 'all') list = list.filter(n=>n.subj===filter);
+  if(!list.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div>No notes yet.</div>'; return; }
+  el.innerHTML = list.map(n => `
+    <div class="note-card" onclick="editNote(${n.id})">
+      <div class="note-title">${n.title}</div>
+      <div class="note-preview">${n.content.replace(/<[^>]*>/g,'').substring(0,100)}...</div>
+      <div class="note-meta"><span class="tag tag-blue">${n.subj}</span><span style="font-size:10px;color:var(--text2)">${n.date}</span><button onclick="event.stopPropagation();deleteNote(${n.id})" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:11px;margin-left:auto">✕ Delete</button></div>
+    </div>`).join('');
+}
+function filterNotes(f, btn) {
+  document.querySelectorAll('#notes-filter .btn').forEach(b=>b.style.borderColor='');
+  btn.style.borderColor='var(--accent)'; btn.style.color='var(--accent2)';
+  renderNotes(f);
+}
+function editNote(id) {
+  const n = state.notes.find(n=>n.id===id);
+  if(!n) return;
+  document.getElementById('note-title').value = n.title;
+  document.getElementById('note-subject').value = n.subj;
+  document.getElementById('note-content').innerHTML = n.content;
+  state.currentNoteEdit = id;
+  document.querySelector('[onclick*=notes]')?.click();
+}
+function deleteNote(id) { state.notes = state.notes.filter(n=>n.id!==id); save(); renderNotes('all'); }
+
+// ========== SPACED REP ==========
+function addFlashcard() {
+  const q = document.getElementById('sr-q').value.trim();
+  const a = document.getElementById('sr-a').value.trim();
+  const subj = document.getElementById('sr-subject').value;
+  if(!q||!a) { notify('Fill both question and answer','red'); return; }
+  state.flashcards.push({q,a,subj,id:Date.now(),due:Date.now(),interval:1,ease:2.5,reps:0});
+  save(); renderSR(); notify('Card added ✓','green');
+  document.getElementById('sr-q').value=''; document.getElementById('sr-a').value='';
+}
+function renderSR() {
+  const due = state.flashcards.filter(c=>c.due<=Date.now());
+  const el = document.getElementById('due-count');
+  if(el) el.textContent = `${due.length} due`;
+  document.getElementById('total-cards').textContent = `${state.flashcards.length} cards`;
+  const area = document.getElementById('sr-review-area');
+  if(!due.length) { area.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div>No cards due! Check back later or add more.</div>'; document.getElementById('sr-rating').innerHTML=''; return; }
+  const card = due[0];
+  area.innerHTML = `<div class="sr-card" id="sr-card" onclick="flipCard()">
+    <div style="font-size:11px;color:var(--text2);margin-bottom:8px">${card.subj}</div>
+    <div class="sr-question">${card.q}</div>
+    <div class="sr-answer">${card.a}</div>
+    <div style="font-size:11px;color:var(--text2);margin-top:12px">Click to reveal answer</div>
+  </div>`;
+  document.getElementById('sr-rating').innerHTML = `
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-red" onclick="rateCard(1)">😰 Hard (Again)</button>
+      <button class="btn btn-outline" onclick="rateCard(3)">🤔 Okay</button>
+      <button class="btn btn-green" onclick="rateCard(5)">✅ Easy</button>
+    </div>`;
+  // all cards
+  const allEl = document.getElementById('all-cards-list');
+  if(!state.flashcards.length) { allEl.innerHTML = '<div class="empty-state">No cards</div>'; return; }
+  allEl.innerHTML = `<table><thead><tr><th>Subject</th><th>Question</th><th>Next Due</th><th>Reps</th><th></th></tr></thead><tbody>
+  ${state.flashcards.map((c,i)=>`<tr>
+    <td><span class="tag tag-blue">${c.subj}</span></td>
+    <td style="font-size:12px;color:var(--text)">${c.q.substring(0,60)}...</td>
+    <td style="font-family:'DM Mono',monospace;font-size:11px">${new Date(c.due).toLocaleDateString()}</td>
+    <td>${c.reps}</td>
+    <td><button class="btn btn-red btn-sm" onclick="deleteCard(${i})">✕</button></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+function flipCard() { document.getElementById('sr-card')?.classList.toggle('flipped'); }
+function rateCard(q) {
+  const due = state.flashcards.filter(c=>c.due<=Date.now());
+  if(!due.length) return;
+  const card = due[0];
+  const idx = state.flashcards.indexOf(card);
+  card.reps++;
+  card.ease = Math.max(1.3, card.ease + (0.1 - (5-q)*(0.08+(5-q)*0.02)));
+  card.interval = q < 3 ? 1 : Math.round(card.interval * card.ease);
+  card.due = Date.now() + card.interval * 24*60*60*1000;
+  state.flashcards[idx] = card;
+  if(q>=4) addPoints(3, 'Card reviewed');
+  save(); renderSR();
+}
+function deleteCard(i) { state.flashcards.splice(i,1); save(); renderSR(); }
+
+// ========== GRADES ==========
+function addGrade() {
+  const subj = document.getElementById('grade-subject').value;
+  const name = document.getElementById('grade-name').value.trim();
+  const score = parseFloat(document.getElementById('grade-score').value);
+  const date = document.getElementById('grade-date').value;
+  const type = document.getElementById('grade-type').value;
+  if(!name||isNaN(score)) { notify('Fill all fields','red'); return; }
+  state.grades.unshift({subj,name,score,date,type,id:Date.now()});
+  save(); renderGrades(); addPoints(5,'Grade logged'); notify('Grade logged ✓','green');
+  document.getElementById('grade-name').value=''; document.getElementById('grade-score').value='';
+  updateSubjectProgress();
+}
+function renderGrades() {
+  const el = document.getElementById('grade-table');
+  if(!state.grades.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div>No grades yet.</div>'; renderGradeSummary(); return; }
+  el.innerHTML = `<table><thead><tr><th>Subject</th><th>Name</th><th>Type</th><th>Score</th><th>Grade</th><th>Date</th><th></th></tr></thead><tbody>
+  ${state.grades.map((g,i)=>{
+    const letter = g.score>=90?'A':g.score>=80?'B':g.score>=70?'C':'D';
+    return `<tr>
+      <td><span class="tag tag-blue">${g.subj}</span></td>
+      <td style="color:var(--text)">${g.name}</td>
+      <td><span class="tag tag-gold">${g.type}</span></td>
+      <td style="font-family:'DM Mono',monospace;color:${g.score>=80?'var(--green)':g.score>=60?'var(--accent)':'var(--red)'}">${g.score}%</td>
+      <td><div class="grade-badge grade-${letter}">${letter}</div></td>
+      <td style="font-size:11px">${g.date||'—'}</td>
+      <td><button class="btn btn-red btn-sm" onclick="deleteGrade(${i})">✕</button></td>
+    </tr>`;
+  }).join('')}</tbody></table>`;
+  renderGradeSummary();
+}
+function renderGradeSummary() {
+  const el = document.getElementById('grade-summary');
+  if(!el) return;
+  const subjects = [...new Set(state.grades.map(g=>g.subj))];
+  if(!subjects.length) { el.innerHTML=''; return; }
+  el.innerHTML = subjects.map(s => {
+    const sg = state.grades.filter(g=>g.subj===s);
+    const avg = Math.round(sg.reduce((a,g)=>a+g.score,0)/sg.length);
+    const letter = avg>=90?'A':avg>=80?'B':avg>=70?'C':'D';
+    return `<div class="stat-card"><div class="grade-badge grade-${letter}" style="margin:0 auto 8px">${letter}</div><div class="stat-num" style="font-size:20px">${avg}%</div><div class="stat-label">${s}</div></div>`;
+  }).join('');
+}
+function deleteGrade(i) { state.grades.splice(i,1); save(); renderGrades(); }
+
+function updateSubjectProgress() {
+  const el = document.getElementById('subject-progress-bars');
+  if(!el) return;
+  if(!state.subjects.length) { el.innerHTML='<div style="font-size:12px;color:var(--text2);text-align:center;padding:20px">Add subjects in the Subject Hub to see progress</div>'; return; }
+  el.innerHTML = state.subjects.map(s => {
+    const sg = state.grades.filter(g=>g.subj===s.name);
+    const avg = sg.length ? Math.round(sg.reduce((a,g)=>a+g.score,0)/sg.length) : 0;
+    const topicPct = s.topics.length ? Math.round(s.topics.filter(t=>t.done).length/s.topics.length*100) : 0;
+    const display = sg.length ? avg+'%' : topicPct+'%';
+    const width = sg.length ? avg : topicPct;
+    return `<div class="prog-wrap">
+      <div class="prog-label"><span>${s.icon} ${s.name}</span><span style="color:${s.color}">${display}</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${width}%;background:${s.color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ========== HABITS ==========
+function addHabit() {
+  const name = document.getElementById('habit-input').value.trim();
+  const icon = document.getElementById('habit-icon').value;
+  if(!name) return;
+  state.habits.push({name, icon, days: [false,false,false,false,false,false,false], id: Date.now()});
+  save(); renderHabits(); notify('Habit added ✓','green');
+  document.getElementById('habit-input').value='';
+}
+function renderHabits() {
+  const el = document.getElementById('habit-list');
+  const days = ['M','T','W','T','F','S','S'];
+  // set week day labels
+  const hw = document.getElementById('hw-labels');
+  if(hw) hw.innerHTML = days.map(d=>`<span style="font-size:9px;color:var(--text2);width:26px;text-align:center">${d}</span>`).join('');
+  
+  if(!state.habits.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">🔥</div>Add habits to track</div>'; return; }
+  el.innerHTML = state.habits.map((h,hi)=>`
+    <div class="habit-row">
+      <span style="font-size:16px">${h.icon}</span>
+      <div class="habit-name">${h.name}</div>
+      <div class="habit-days">
+        ${h.days.map((d,di)=>`<div class="habit-day ${d?'done':''}" onclick="toggleHabitDay(${hi},${di})">${days[di]}</div>`).join('')}
+      </div>
+      <button onclick="deleteHabit(${hi})" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;padding:0 4px">✕</button>
+    </div>`).join('');
+}
+function toggleHabitDay(hi,di) {
+  state.habits[hi].days[di] = !state.habits[hi].days[di];
+  if(state.habits[hi].days[di]) addPoints(5,'Habit completed');
+  save(); renderHabits();
+}
+function deleteHabit(i) { state.habits.splice(i,1); save(); renderHabits(); }
+
+// ========== REWARDS ==========
+function renderRewards() {
+  updatePointsBar();
+  const earnList = [
+    {icon:'⏱',action:'Complete a 25-min Pomodoro',pts:15},
+    {icon:'⏱',action:'Complete a 50-min Deep Work session',pts:30},
+    {icon:'⏱',action:'Complete a 90-min Ultra session',pts:50},
+    {icon:'✅',action:'Complete a daily task',pts:10},
+    {icon:'📌',action:'Complete an assignment',pts:25},
+    {icon:'🔁',action:'Review 20+ flashcards',pts:15},
+    {icon:'📊',action:'Log a grade',pts:5},
+    {icon:'📝',action:'Write study notes',pts:5},
+    {icon:'🔥',action:'Maintain daily streak',pts:50},
+    {icon:'📚',action:'Complete past paper',pts:40},
+  ];
+  const rewards = [
+    {icon:'☕',reward:'30-min YouTube/entertainment break',cost:100},
+    {icon:'🎮',reward:'1-hour gaming or movie session',cost:250},
+    {icon:'😴',reward:'1-hour extra sleep on weekend',cost:150},
+    {icon:'🍕',reward:'Your favorite meal/snack',cost:200},
+    {icon:'📱',reward:'Social media check (30 min)',cost:80},
+    {icon:'🏆',reward:'Full day off (after 5-day streak)',cost:500},
+  ];
+  const punishments = [
+    {icon:'⚠️',action:'Skipped a study session',consequence:'Write out 50 times: "I will study."'},
+    {icon:'⚠️',action:'Watched YouTube before 4hrs study',consequence:'Add 1 extra hour to tonight\'s session'},
+    {icon:'⚠️',action:'Cheated on a practice paper',consequence:'-50 points + redo the paper honestly'},
+    {icon:'⚠️',action:'Did not meet daily minimums',consequence:'No rewards tomorrow regardless of points'},
+    {icon:'⚠️',action:'Gave up mid-session',consequence:'Start that session over from the beginning'},
+  ];
+  document.getElementById('earn-list').innerHTML = earnList.map(e=>`<div class="rp-item"><div class="rp-icon">${e.icon}</div><div class="rp-text">${e.action}</div><div class="rp-pts" style="color:var(--accent2)">+${e.pts}pts</div></div>`).join('');
+  document.getElementById('reward-list').innerHTML = rewards.map(r=>`<div class="rp-item"><div class="rp-icon">${r.icon}</div><div class="rp-text">${r.reward}</div><button class="btn btn-gold btn-sm" onclick="redeemReward(${r.cost},'${r.reward}')">${r.cost}pts</button></div>`).join('');
+  document.getElementById('punishment-list').innerHTML = punishments.map(p=>`<div class="rp-item"><div class="rp-icon">${p.icon}</div><div><div class="rp-text" style="color:var(--red)">${p.action}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">→ ${p.consequence}</div></div></div>`).join('');
+}
+function redeemReward(cost, name) {
+  if(state.points < cost) { notify(`Need ${cost-state.points} more points!`, 'red'); return; }
+  state.points -= cost;
+  updatePointsBar();
+  document.getElementById('dash-points').textContent = state.points;
+  document.getElementById('topbar-pts').textContent = `⭐ ${state.points} pts`;
+  save(); notify(`Reward redeemed: ${name} 🎉`, 'green');
+}
+
+// ========== WEEK PLANNER ==========
+function renderWeek() {
+  const grid = document.getElementById('week-grid');
+  const today = new Date();
+  const monday = new Date(today);
+  const dayOfWeek = today.getDay();
+  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) + (state.weekOffset * 7));
+  document.getElementById('week-label').textContent = `Week of ${monday.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  grid.innerHTML = days.map((_,i)=>{
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const isToday = d.toDateString()===today.toDateString();
+    const tasks = state.assignments.filter(a=>a.due===d.toISOString().split('T')[0]&&!a.done);
+    return `<div class="week-cell ${isToday?'today':''}">
+      <div class="week-day">${days[i]}</div>
+      <div class="week-date">${d.getDate()}</div>
+      <div class="week-tasks">${tasks.slice(0,3).map(t=>`<div class="week-task-dot">• ${t.title.substring(0,15)}</div>`).join('')}</div>
+    </div>`;
+  }).join('');
+  // timetable
+  const tbody = document.getElementById('timetable-body');
+  const slots = [
+    ['20:00–22:00','Hardest Subject','Math / HSK','English','Science','History','Math','Review'],
+    ['22:00–22:10','☕ Break','☕ Break','☕ Break','☕ Break','☕ Break','☕ Break','☕ Break'],
+    ['22:10–23:30','2nd Subject','Past Papers','Math Drills','HSK Vocab','Science','English','Past Papers'],
+    ['23:30–00:00','Spaced Rep','Spaced Rep','Spaced Rep','Spaced Rep','Spaced Rep','Spaced Rep','Spaced Rep'],
+    ['00:00–00:15','Plan + Log','Plan + Log','Plan + Log','Plan + Log','Plan + Log','Plan + Log','Plan + Log'],
+  ];
+  tbody.innerHTML = slots.map(row=>`<tr>${row.map((c,i)=>i===0?`<td style="color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;white-space:nowrap">${c}</td>`:`<td>${c}</td>`).join('')}</tr>`).join('');
+}
+function prevWeek() { state.weekOffset--; renderWeek(); }
+function nextWeek() { state.weekOffset++; renderWeek(); }
+
+// ========== YEAR PLAN ==========
+function renderYearPlan() {
+  const months = [
+    {name:'Month 1: Foundation', color:'var(--red)', goals:[
+      {subj:'Mathematics',goal:'Algebra basics, quadratics, functions from scratch. 30 problems/day.'},
+      {subj:'Science',goal:'Review all Year 10-11 fundamentals. Build a master formula sheet.'},
+      {subj:'English',goal:'Essay structure, grammar rules, vocabulary. Write 1 essay/week.'},
+      {subj:'Chinese/HSK',goal:'50 new HSK words/day. Master tones. Complete HSK 1-2 vocabulary.'},
+      {subj:'History',goal:'Build a timeline of all key events. Read 1 chapter/night.'},
+      {subj:'Goal',goal:'Build the habit. Study minimum 4hrs every single night. No exceptions.'},
+    ]},
+    {name:'Month 2: Drilling', color:'var(--accent)', goals:[
+      {subj:'Mathematics',goal:'Past papers daily. Calculus introduction. Target: solve without hints.'},
+      {subj:'Science',goal:'Past paper questions. Master Physics + Chemistry formulas.'},
+      {subj:'English',goal:'Timed essay practice. Reading comprehension past papers.'},
+      {subj:'Chinese/HSK',goal:'HSK 3-4 vocabulary. Grammar patterns. 30 min listening/day.'},
+      {subj:'History',goal:'Source analysis and essay writing. Past paper practice begins.'},
+      {subj:'Goal',goal:'Increase to 6-8hrs/night. You should feel the momentum by now.'},
+    ]},
+    {name:'Month 3: Mastery', color:'var(--green)', goals:[
+      {subj:'Mathematics',goal:'Exam simulation. Full past papers under timed conditions. Review mistakes only.'},
+      {subj:'Science',goal:'Full exam simulation. Target 80%+ on all past papers.'},
+      {subj:'English',goal:'Final polish on essays. Timed exams. Vocabulary consolidation.'},
+      {subj:'Chinese/HSK',goal:'Full HSK mock exams. Speaking practice. Writing characters.'},
+      {subj:'History',goal:'Full past papers. Memorize key quotes and dates under exam conditions.'},
+      {subj:'Goal',goal:'You are no longer behind. You are ahead. Maintain 6hrs minimum.'},
+    ]},
+  ];
+  const grid = document.getElementById('month-plan-grid');
+  grid.innerHTML = months.map((m,mi)=>`
+    <div class="card" style="border-color:${m.color};border-top-width:3px">
+      <div style="font-family:'Playfair Display',serif;font-size:16px;color:${m.color};margin-bottom:12px">${m.name}</div>
+      ${m.goals.map(g=>`<div style="margin-bottom:8px"><div style="font-size:11px;color:${m.color};font-weight:600;letter-spacing:1px">${g.subj}</div><div style="font-size:12px;color:var(--text2);line-height:1.5;margin-top:2px" contenteditable="true">${g.goal}</div></div>`).join('')}
+    </div>`).join('');
+
+  const tl = document.getElementById('subject-timeline');
+  const timeline = [
+    {subj:'Mathematics',m1:'Algebra, Quadratics',m2:'Calculus intro, Past papers',m3:'Full exam simulation'},
+    {subj:'Science',m1:'Year 10-11 review',m2:'Formula mastery, Past Qs',m3:'Exam simulation'},
+    {subj:'English',m1:'Structure, grammar',m2:'Timed essays',m3:'Full past papers'},
+    {subj:'Chinese/HSK',m1:'HSK 1-2 vocab',m2:'HSK 3-4, listening',m3:'Mock exams'},
+    {subj:'History',m1:'Timeline, chapters',m2:'Source analysis',m3:'Past papers'},
+    {subj:'Extra Course',m1:'Review syllabus',m2:'Mid-topic practice',m3:'Exam prep'},
+  ];
+  tl.innerHTML = `<table><thead><tr><th>Subject</th><th>Month 1</th><th>Month 2</th><th>Month 3</th></tr></thead><tbody>
+  ${timeline.map(t=>`<tr>
+    <td><b style="color:var(--text)">${t.subj}</b></td>
+    <td style="font-size:12px;color:var(--text2)">${t.m1}</td>
+    <td style="font-size:12px;color:var(--text2)">${t.m2}</td>
+    <td style="font-size:12px;color:var(--text2)">${t.m3}</td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+// ========== SUBJECT MANAGEMENT ==========
+const SUBJECT_COLORS = ['var(--blue)','var(--green)','var(--purple)','var(--red)','var(--accent)','#e08a5c','#5ce0d8','#e05cb0'];
+
+function getSubjectNames() {
+  return state.subjects.map(s => s.name);
+}
+
+function populateSubjectDropdowns() {
+  const names = getSubjectNames();
+  const extra = names.length ? '' : '<option value="General">General</option>';
+  const opts = names.map(n=>`<option value="${n}">${n}</option>`).join('') + extra;
+  ['assign-subject','note-subject','sr-subject','grade-subject','timer-subject','dash-quick-subj'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = opts;
+  });
+}
+
+function addSubject() {
+  const name = document.getElementById('new-subj-name').value.trim();
+  const icon = document.getElementById('new-subj-icon').value;
+  const color = document.getElementById('new-subj-color').value;
+  if(!name) { notify('Enter a subject name','red'); return; }
+  if(state.subjects.find(s=>s.name.toLowerCase()===name.toLowerCase())) { notify('Subject already exists','red'); return; }
+  state.subjects.push({name, icon, color, topics:[], notes:'', id:Date.now()});
+  save(); renderSubjects(); populateSubjectDropdowns(); populateDashSubjectPills();
+  notify(`${icon} ${name} added!`, 'green');
+  document.getElementById('new-subj-name').value = '';
+}
+
+function deleteSubject(id) {
+  if(!confirm('Delete this subject? This will not delete associated grades/notes.')) return;
+  state.subjects = state.subjects.filter(s=>s.id!==id);
+  save(); renderSubjects(); populateSubjectDropdowns(); populateDashSubjectPills();
+}
+
+function addSubjectTopic(id) {
+  const text = prompt('New topic:');
+  if(!text) return;
+  const s = state.subjects.find(s=>s.id===id);
+  if(s) { s.topics.push({text,done:false}); save(); renderSubjects(); }
+}
+
+function toggleSubjectTopic(sid, ti) {
+  const s = state.subjects.find(s=>s.id===sid);
+  if(s && s.topics[ti]) { s.topics[ti].done = !s.topics[ti].done; if(s.topics[ti].done) addPoints(5,'Topic completed'); save(); renderSubjects(); }
+}
+
+function saveSubjectNotes(id, val) {
+  const s = state.subjects.find(s=>s.id===id);
+  if(s) { s.notes = val; save(); }
+}
+
+function renderSubjects() {
+  const el = document.getElementById('subjects-hub');
+  if(!state.subjects.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:60px"><div class="empty-icon">📚</div><div style="margin-bottom:8px">No subjects yet</div><div style="font-size:12px;color:var(--text2)">Add your first subject above — you can add as many as you need</div></div>`;
+    return;
+  }
+  el.innerHTML = state.subjects.map((s,i)=>`
+    <div style="margin-bottom:12px">
+      <div class="collapse-trigger ${i===0?'open':''}" onclick="toggleCollapse(this)" style="padding:16px;background:var(--bg3);border-radius:10px 10px 0 0;border:1px solid var(--border);display:flex;align-items:center;gap:12px">
+        <span style="font-size:20px">${s.icon}</span>
+        <span style="font-size:15px;color:var(--text);font-weight:500;flex:1">${s.name}</span>
+        <span class="tag" style="background:${s.color}22;color:${s.color};border:1px solid ${s.color}44">${s.topics.filter(t=>t.done).length}/${s.topics.length} topics</span>
+        <button onclick="event.stopPropagation();deleteSubject(${s.id})" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;padding:2px 6px" title="Remove subject">✕</button>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="collapse-body ${i===0?'open':''}" style="background:var(--bg3);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px">
+        <div style="padding:16px">
+          <div class="grid2" style="gap:16px">
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${s.color}">Topics to Cover</div>
+                <button class="btn btn-outline btn-sm" onclick="addSubjectTopic(${s.id})">+ Topic</button>
+              </div>
+              ${s.topics.length ? s.topics.map((t,ti)=>`
+                <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
+                  <input type="checkbox" ${t.done?'checked':''} onchange="toggleSubjectTopic(${s.id},${ti})" style="width:14px;height:14px;accent-color:${s.color};cursor:pointer">
+                  <span style="font-size:13px;color:var(--text2);flex:1;${t.done?'text-decoration:line-through;opacity:0.5':''}">${t.text}</span>
+                </div>`).join('') : `<div style="font-size:12px;color:var(--text2);padding:12px 0">No topics yet. Click "+ Topic" to add.</div>`}
+              <div style="margin-top:12px">
+                <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${s.color};margin-bottom:6px">Progress</div>
+                <div class="prog-bar"><div class="prog-fill" style="width:${s.topics.length?Math.round(s.topics.filter(t=>t.done).length/s.topics.length*100):0}%;background:${s.color}"></div></div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${s.color};margin-bottom:8px">Quick Notes</div>
+              <textarea placeholder="Formulas, key concepts, reminders for ${s.name}..." style="min-height:120px;font-size:12px" onblur="saveSubjectNotes(${s.id},this.value)">${s.notes||''}</textarea>
+              <div style="margin-top:12px">
+                <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${s.color};margin-bottom:8px">Grade Average</div>
+                ${(()=>{ const sg=state.grades.filter(g=>g.subj===s.name); if(!sg.length) return '<div style="font-size:12px;color:var(--text2)">No grades logged yet</div>'; const avg=Math.round(sg.reduce((a,g)=>a+g.score,0)/sg.length); const letter=avg>=90?'A':avg>=80?'B':avg>=70?'C':'D'; return `<div class="grade-badge grade-${letter}" style="margin:0">${letter}</div><span style="font-family:'DM Mono',monospace;font-size:16px;color:var(--text);margin-left:8px">${avg}%</span>`; })()}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function toggleCollapse(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// ========== ROUTINE ==========
+function renderRoutine() {
+  const steps = [
+    {num:'01',time:'Before 20:00',title:'Environment Setup',desc:'Clear your desk. Close all browser tabs except this system. Put your phone in another room or face-down. Get water. The environment is your weapon — make it clean, dark, focused. You are entering a different mode now.'},
+    {num:'02',time:'20:00 sharp',title:'Night Session Begins — No Negotiation',desc:'Whatever happened during the day is irrelevant. Errands, tiredness, mood — none of it counts. You open your hardest subject first. Chinese top students call this 吃青蛙 (eating the frog) — tackle the hardest thing while your mind is freshest.'},
+    {num:'03',time:'20:00–22:00',title:'Deep Work Block 1 — 2 Hours',desc:'Use 50-min timer. Study your most difficult subject or the one with the closest deadline. No music. No phone. Pencil on paper. For math: drills. For HSK: vocabulary + sentences. For science: read then close book and write everything you remember.'},
+    {num:'04',time:'22:00–22:10',title:'Break — Strict 10 Minutes',desc:'Walk. Stretch. Drink water. No screen. No YouTube. No Instagram. Set a timer. This break is NOT a reward — it is a cognitive reset. Chinese top students keep breaks short so momentum doesn\'t die. At 22:10, you are back.'},
+    {num:'05',time:'22:10–23:30',title:'Deep Work Block 2 — 80 Minutes',desc:'Switch to your second priority subject. Past paper practice if available. If you feel sleepy: stand up and study standing. Splash water on your face. The discipline of continuing when you don\'t want to is exactly what separates you from who you\'ve been.'},
+    {num:'06',time:'23:30–00:00',title:'Spaced Repetition Review',desc:'Open your flashcard deck in this system. Review all due cards. Do minimum 20 cards. For HSK: this is your daily vocabulary reinforcement. This is how Chinese students retain thousands of facts — not re-reading, but active recall.'},
+    {num:'07',time:'00:00–00:15',title:'Daily Debrief',desc:'Log your study day. Write 3 things you learned. Write tomorrow\'s top 3 missions. Update your grade tracker or assignment tracker if needed. Add points. This 15 minutes is what makes the system compound — it keeps you honest.'},
+    {num:'08',time:'00:15+',title:'Optional: Extended Session',desc:'If you have energy: continue with a third subject, watch a CrashCourse video on a topic, or do extra HSK listening. The more you do tonight, the less anxiety you carry tomorrow. Some nights you will study until 2 or 3 AM — and that is okay. Honor the night.'},
+  ];
+  document.getElementById('routine-steps').innerHTML = steps.map(s=>`
+    <div class="routine-step">
+      <div class="routine-num">${s.num}</div>
+      <div class="routine-content">
+        <div class="routine-time">${s.time}</div>
+        <div class="routine-title">${s.title}</div>
+        <div class="routine-desc">${s.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ========== RESOURCES ==========
+function renderResources() {
+  const sections = [
+    {title:'📐 Mathematics', resources:[
+      {name:'Khan Academy',desc:'Full math curriculum from basics to calculus. Completely free. Start with your weakest area.',url:'https://www.khanacademy.org/math'},
+      {name:'Paul\'s Online Math Notes',desc:'Clear university-level notes on algebra, calculus, and more. Printable.',url:'https://tutorial.math.lamar.edu'},
+      {name:'Desmos Graphing Calculator',desc:'Free online graphing tool. Visualize any function.',url:'https://www.desmos.com'},
+      {name:'Mathway (problem solver)',desc:'Step-by-step math solutions. Use to check your work and understand steps.',url:'https://www.mathway.com'},
+      {name:'PatrickJMT YouTube',desc:'Free math video tutorials. Very clear explanations.',url:'https://www.youtube.com/@patrickjmt'},
+    ]},
+    {title:'🔬 Science', resources:[
+      {name:'Khan Academy Science',desc:'Physics, chemistry, biology — all covered. Free.',url:'https://www.khanacademy.org/science'},
+      {name:'CrashCourse YouTube',desc:'Engaging 10-15 min video lessons on all science topics.',url:'https://www.youtube.com/@crashcourse'},
+      {name:'PhET Interactive Simulations',desc:'Free lab simulations from University of Colorado. Perfect for understanding concepts.',url:'https://phet.colorado.edu'},
+      {name:'LibreTexts',desc:'Free open textbooks for chemistry, physics, biology.',url:'https://libretexts.org'},
+      {name:'Bozeman Science YouTube',desc:'Excellent AP-level biology and chemistry explanations.',url:'https://www.youtube.com/@bozemanscience'},
+    ]},
+    {title:'🀄 Chinese / HSK', resources:[
+      {name:'HSK Academy',desc:'Free structured HSK lessons. Levels 1-6.',url:'https://www.hskhsk.com'},
+      {name:'Pleco Dictionary',desc:'The best free Chinese dictionary app. Essential.',url:'https://www.pleco.com'},
+      {name:'HelloChinese App',desc:'Best free app for HSK beginner to intermediate.',url:'https://www.hellochinese.cc'},
+      {name:'MDBG Online Dictionary',desc:'Free web-based Chinese dictionary with stroke order.',url:'https://www.mdbg.net'},
+      {name:'Anki (Spaced Repetition)',desc:'Free desktop flashcard app. Download HSK decks for free.',url:'https://apps.ankiweb.net'},
+    ]},
+    {title:'📖 English', resources:[
+      {name:'Purdue OWL',desc:'The gold standard for free writing and grammar help.',url:'https://owl.purdue.edu/owl/'},
+      {name:'CommonLit',desc:'Free reading comprehension passages and questions.',url:'https://www.commonlit.org'},
+      {name:'SparkNotes',desc:'Free literature summaries and analysis.',url:'https://www.sparknotes.com'},
+      {name:'Grammarly (free version)',desc:'Grammar and writing checker. Use to improve essays.',url:'https://www.grammarly.com'},
+      {name:'Quizlet',desc:'Free flashcards for vocabulary. Huge existing decks.',url:'https://quizlet.com'},
+    ]},
+    {title:'📚 Past Papers & Exam Prep', resources:[
+      {name:'Past Papers.co',desc:'Free past exam papers for many curricula.',url:'https://pastpapers.co'},
+      {name:'Revision World',desc:'Free revision notes, past papers, and quizzes.',url:'https://revisionworld.com'},
+      {name:'Physics & Maths Tutor',desc:'Massive free collection of past papers and worked solutions.',url:'https://www.physicsandmathstutor.com'},
+      {name:'NESA Past Papers (NSW)',desc:'Official past HSC exam papers.',url:'https://educationstandards.nsw.edu.au/wps/portal/nesa/11-12/resources/hsc-exam-papers'},
+      {name:'IB Past Papers (Free)',desc:'Free IB past exam resources and study guides.',url:'https://www.ibresources.org'},
+    ]},
+    {title:'🧠 Focus & Productivity', resources:[
+      {name:'Forest App (free version)',desc:'Plant a tree while you focus. Gamified focus timer.',url:'https://www.forestapp.cc'},
+      {name:'Focusmate',desc:'Free virtual co-working sessions. Study with a partner online.',url:'https://www.focusmate.com'},
+      {name:'Noisli',desc:'Free background sounds (rain, cafe) to boost focus. No headphones needed — use speakers low.',url:'https://www.noisli.com'},
+      {name:'Cold Turkey Blocker (free)',desc:'Block distracting websites while studying.',url:'https://getcoldturkey.com'},
+      {name:'Notion (free)',desc:'Alternative note-taking if you want to expand beyond this system.',url:'https://www.notion.so'},
+    ]},
+  ];
+  const el = document.getElementById('resource-sections');
+  el.innerHTML = sections.map(s=>`
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">${s.title}</div></div>
+      ${s.resources.map(r=>`<a href="${r.url}" target="_blank" class="resource-card">
+        <div class="resource-name">${r.name}</div>
+        <div class="resource-desc">${r.desc}</div>
+        <div class="resource-url">↗ ${r.url}</div>
+      </a>`).join('')}
+    </div>`).join('');
+}
+
+// ========== DASHBOARD ==========
+function populateDashSubjectPills() {
+  const el = document.getElementById('dash-subject-pills');
+  if(!el) return;
+  const names = getSubjectNames();
+  if(!names.length) { el.innerHTML='<span style="font-size:11px;color:var(--text2)">Add subjects in Subject Hub to filter goals</span>'; return; }
+  el.innerHTML = `<span class="subject-pill active" onclick="filterTodosBySubj(null,this)" data-subj="">All</span>` +
+    names.map(n=>`<span class="subject-pill" onclick="filterTodosBySubj('${n}',this)" data-subj="${n}">${n}</span>`).join('');
+  // also populate dash quick subject select
+  const sel = document.getElementById('dash-quick-subj');
+  if(sel) sel.innerHTML = names.map(n=>`<option>${n}</option>`).join('') || '<option>General</option>';
+}
+
+function dashQuickAdd() {
+  const text = document.getElementById('dash-quick-task').value.trim();
+  const subj = document.getElementById('dash-quick-subj')?.value || 'General';
+  const priority = document.getElementById('dash-quick-priority').value;
+  if(!text) return;
+  state.todos.push({text, done:false, priority, subject:subj});
+  save(); renderDashTasks();
+  document.getElementById('dash-quick-task').value = '';
+  notify('Goal added ✓','green');
+}
+
+let currentSubjFilter = null;
+function filterTodosBySubj(subj, btn) {
+  currentSubjFilter = subj || null;
+  document.querySelectorAll('#dash-subject-pills .subject-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashTasks();
+}
+
+function renderDashboard() {
+  document.getElementById('dash-streak').textContent = state.streak;
+  document.getElementById('dash-points').textContent = state.points;
+  document.getElementById('topbar-pts').textContent = `⭐ ${state.points} pts`;
+  renderDashTasks();
+  renderDashUpcoming();
+  updateSubjectProgress();
+  populateDashSubjectPills();
+}
+
+// ========== MODAL ==========
+function closeModal(e) { if(e.target === document.getElementById('modal')) document.getElementById('modal').classList.remove('open'); }
+
+function confirmClearAll() {
+  if(confirm('⚠️ This will delete ALL your data — goals, grades, notes, subjects, everything. Export a backup first! Are you absolutely sure?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    notify('All data cleared. Reloading...','red');
+    setTimeout(()=>location.reload(), 1200);
+  }
+}
+
+function renderSettingsPage() {
+  const protocolEl = document.getElementById('protocol-status');
+  if(protocolEl) {
+    if(location.protocol === 'file:') {
+      protocolEl.innerHTML = `<div style="background:rgba(92,224,138,0.08);border:1px solid rgba(92,224,138,0.25);border-radius:8px;padding:14px;font-size:13px;color:var(--text2);line-height:1.8">
+        <b style="color:var(--green)">✅ Running from local file — everything works</b><br>
+        The Smart Planner is fully offline. Data saves in your browser. Export a backup from below regularly.
+      </div>`;
+    } else {
+      protocolEl.innerHTML = `<div style="background:rgba(92,224,138,0.08);border:1px solid rgba(92,224,138,0.2);border-radius:8px;padding:12px;font-size:12px;color:var(--text2)"><b style="color:var(--green)">✅ Running from a web server</b> — everything works fully.</div>`;
+    }
+  }
+}
+
+// ========== INIT ==========
+renderDashboard();
+renderRoutine();
+populateSubjectDropdowns();
+populateDashSubjectPills();
+
+// Default habits
+if(!state.habits.length) {
+  state.habits = [
+    {name:'Solve 10 math/logic problems',icon:'🧮',days:[false,false,false,false,false,false,false],id:1},
+    {name:'20 vocabulary/flashcards',icon:'🀄',days:[false,false,false,false,false,false,false],id:2},
+    {name:'Complete 1 past paper question set',icon:'📚',days:[false,false,false,false,false,false,false],id:3},
+    {name:'Read and summarize 1 topic',icon:'🔬',days:[false,false,false,false,false,false,false],id:4},
+    {name:'Write/review study notes',icon:'📝',days:[false,false,false,false,false,false,false],id:5},
+    {name:'No entertainment before 4 goals done',icon:'🎯',days:[false,false,false,false,false,false,false],id:6},
+  ];
+  save();
+}
+
+// Mark visited
+const hasVisited = !!state.visited;
+state.visited = true;
+save();
+
+// Check streak
+if(state.streak > 0) {
+  setTimeout(()=>notify(`🔥 Day ${state.streak} streak · Keep going, Scholar`, 'gold'), 1000);
+}
+
+// Prompt to add subjects if none exist
+if(!state.subjects.length) {
+  setTimeout(()=>notify('👋 Start by going to Subject Hub to add your subjects!', 'blue'), 1500);
+}
+
+// Remind to save
+if(hasVisited) {
+  setTimeout(()=>notify('💾 Press Ctrl+S anytime to save your file', 'blue'), 6000);
+}
+</script>
+</body>
+</html>
